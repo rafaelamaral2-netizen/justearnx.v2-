@@ -802,51 +802,45 @@ function renderSignupCard() {
 ------------------------- */
 function renderAppShell() {
   return `
-    <div class="app-shell">
+    <div class="app-shell app-shell-mobile">
+      <main class="page-content page-content-mobile">
+        ${renderPage()}
+      </main>
       ${renderNav()}
-      <div class="main-shell">
-        <main class="page-content">
-          ${renderPage()}
-        </main>
-      </div>
     </div>
   `;
 }
-
 function renderNav() {
   const unread = totalUnreadCount();
 
+  const items = [
+    { key: "home", label: "Home", icon: "⌂" },
+    { key: "discover", label: "Discover", icon: "⌕" },
+    { key: "messages", label: "Messages", icon: "✉" },
+    { key: "profile", label: "Profile", icon: "◉" },
+    { key: "wallet", label: "Wallet", icon: "$" }
+  ];
+
   return `
-    <nav class="sidebar">
-      <div class="brand">
-        <div class="brand-mark">X</div>
-        <div>
-          <div class="brand-name">Earn<span class="x">X</span></div>
-          <div class="brand-sub">Creator platform</div>
-        </div>
-      </div>
-
-      <div class="nav-group">
-        <button class="nav-btn ${state.ui.appView === "home" ? "active" : ""}" data-nav="home">Home</button>
-        <button class="nav-btn ${state.ui.appView === "discover" ? "active" : ""}" data-nav="discover">Discover</button>
-        <button class="nav-btn ${state.ui.appView === "messages" ? "active" : ""}" data-nav="messages">
-          Messages ${unread > 0 ? `<span class="nav-unread">${unread}</span>` : ""}
+    <nav class="bottom-nav">
+      ${items.map(item => `
+        <button
+          class="bottom-nav-btn ${state.ui.appView === item.key ? "active" : ""}"
+          data-nav="${item.key}"
+          aria-label="${item.label}"
+        >
+          <span class="bottom-nav-icon-wrap">
+            <span class="bottom-nav-icon">${item.icon}</span>
+            ${item.key === "messages" && unread > 0
+              ? `<span class="bottom-nav-badge">${unread > 9 ? "9+" : unread}</span>`
+              : ""}
+          </span>
+          <span class="bottom-nav-label">${item.label}</span>
         </button>
-        <button class="nav-btn ${state.ui.appView === "profile" ? "active" : ""}" data-nav="profile">Profile</button>
-        <button class="nav-btn ${state.ui.appView === "wallet" ? "active" : ""}" data-nav="wallet">Wallet</button>
-        <button class="nav-btn ${state.ui.appView === "settings" ? "active" : ""}" data-nav="settings">Settings</button>
-      </div>
-
-      <div style="margin-top:20px;" class="stack">
-        <button class="btn btn-primary" id="themeToggleBtn">
-          ${state.ui.theme === "dark" ? "Light Mode" : "Dark Mode"}
-        </button>
-        <button class="btn btn-secondary" id="logoutBtn">Logout</button>
-      </div>
+      `).join("")}
     </nav>
   `;
 }
-
 function renderPage() {
   switch (state.ui.appView) {
     case "home":
