@@ -810,6 +810,7 @@ function renderAppShell() {
     </div>
   `;
 }
+
 function renderNav() {
   const unread = totalUnreadCount();
 
@@ -841,6 +842,7 @@ function renderNav() {
     </nav>
   `;
 }
+
 function renderPage() {
   switch (state.ui.appView) {
     case "home":
