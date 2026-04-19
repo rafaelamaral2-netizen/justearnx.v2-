@@ -300,3 +300,205 @@ body {
     border-bottom: 1px solid var(--line);
   }
 }
+/* =========================================================
+   EARNX — BOTTOM NAV MASTER
+   Pegar al final de styles.css
+========================================================= */
+
+/* Layout móvil principal */
+.app-shell-mobile {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-content-mobile {
+  flex: 1;
+  width: 100%;
+  padding-bottom: 110px;
+}
+
+/* Barra inferior */
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  background: rgba(8, 11, 16, 0.92);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border-top: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 -12px 30px rgba(0,0,0,0.35);
+}
+
+/* Botones */
+.bottom-nav-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 62px;
+  padding: 8px 4px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease;
+}
+
+.bottom-nav-btn:active {
+  transform: scale(0.96);
+}
+
+.bottom-nav-btn:hover {
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
+}
+
+/* Estado activo */
+.bottom-nav-btn.active {
+  background: rgba(97, 216, 125, 0.10);
+  color: var(--accent);
+}
+
+/* Icono */
+.bottom-nav-icon-wrap {
+  position: relative;
+  width: 24px;
+  height: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bottom-nav-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+  font-weight: 800;
+}
+
+/* Label */
+.bottom-nav-label {
+  font-size: 0.70rem;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/* Badge */
+.bottom-nav-badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ff5d73;
+  color: #fff;
+  border: 2px solid rgba(8, 11, 16, 0.92);
+
+  font-size: 0.60rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* Ajustes del contenido con bottom nav */
+.page-content.page-content-mobile {
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 18px;
+}
+
+/* Oculta sidebar vieja si quedara algo */
+.app-shell-mobile .sidebar {
+  display: none !important;
+}
+
+/* En desktop/tablet grande, podemos mantener bottom nav compacta
+   o esconderla luego si quieres otra navegación. Por ahora app-first. */
+@media (min-width: 900px) {
+  .bottom-nav {
+    max-width: 520px;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 16px;
+
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 22px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .page-content-mobile {
+    padding-bottom: 120px;
+  }
+}
+
+/* Mejoras visuales mobile */
+@media (max-width: 640px) {
+  .bottom-nav {
+    gap: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .bottom-nav-btn {
+    min-height: 58px;
+    border-radius: 14px;
+    gap: 5px;
+  }
+
+  .bottom-nav-icon {
+    font-size: 1.05rem;
+  }
+
+  .bottom-nav-label {
+    font-size: 0.66rem;
+  }
+
+  .page-content.page-content-mobile {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+}
+
+/* Light theme */
+body.light-theme .bottom-nav {
+  background: rgba(246, 248, 251, 0.94);
+  border-top: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 -10px 25px rgba(15, 23, 42, 0.08);
+}
+
+body.light-theme .bottom-nav-btn:hover {
+  background: rgba(0,0,0,0.03);
+}
+
+body.light-theme .bottom-nav-btn.active {
+  background: rgba(97, 216, 125, 0.14);
+}
+
+body.light-theme .bottom-nav-badge {
+  border-color: rgba(246, 248, 251, 0.94);
+}
