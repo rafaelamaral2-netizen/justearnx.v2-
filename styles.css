@@ -1,4 +1,11 @@
 body {
-  background: black;
-  color: lime;
+  margin: 0;
+  min-height: 100vh;
+  font-family: -apple-system, sans-serif;
+
+  background:
+    radial-gradient(circle at top left, rgba(97,216,125,0.12), transparent 30%),
+    #05070a;
+
+  color: #e8edf2;
 }
