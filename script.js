@@ -977,7 +977,6 @@ function renderHome() {
       <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
         <button class="btn btn-primary" data-nav="discover">Discover talent</button>
         <button class="btn btn-secondary" data-nav="profile">Open profile</button>
-        <button class="btn btn-secondary" id="themeToggleBtn">Toggle theme</button>
       </div>
 
       <section class="section">
