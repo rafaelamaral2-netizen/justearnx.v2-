@@ -1438,3 +1438,89 @@ body.light-theme .bottom-nav-badge {
   margin-top: 10px;
   flex-wrap: wrap;
 }
+.story-strip {
+  display: flex !important;
+  gap: 14px !important;
+  overflow-x: auto !important;
+  padding-top: 12px !important;
+}
+
+.story-card {
+  min-width: 74px !important;
+  text-align: center !important;
+}
+
+.story-ring {
+  width: 64px !important;
+  height: 64px !important;
+  border-radius: 50% !important;
+  padding: 3px !important;
+  background: linear-gradient(135deg, #61d87d, #4bcf73) !important;
+}
+
+.story-ring-inner {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  background: #0d1117 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 900 !important;
+  color: white !important;
+}
+
+.story-name {
+  font-size: 12px !important;
+  margin-top: 6px !important;
+  color: white !important;
+}
+
+.story-time {
+  font-size: 11px !important;
+  color: #8c97a5 !important;
+}
+
+.top5-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  margin-top: 14px !important;
+}
+
+.top5-card {
+  padding: 14px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  background: #131922 !important;
+}
+
+.top5-rank {
+  font-size: 13px !important;
+  color: #61d87d !important;
+  font-weight: 900 !important;
+}
+
+.top5-user {
+  display: flex !important;
+  gap: 10px !important;
+  align-items: center !important;
+  margin-top: 6px !important;
+}
+
+.top5-name {
+  font-weight: 900 !important;
+  color: white !important;
+}
+
+.top5-handle {
+  font-size: 12px !important;
+  color: #8c97a5 !important;
+}
+
+.top5-stats {
+  display: flex !important;
+  gap: 8px !important;
+  margin-top: 10px !important;
+  flex-wrap: wrap !important;
+}
