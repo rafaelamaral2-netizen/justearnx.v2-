@@ -949,43 +949,98 @@ function renderTop5() {
     </section>
   `;
 }
-
 function renderHome() {
   return `
-    <section class="hero-home">
-      <div class="hero-home-copy">
-        <div class="page-kicker">EarnX</div>
-        <h2>Build. Create. Own.</h2>
-        <p>Premium creator infrastructure for content, discovery, messaging, subscriptions, and audience momentum.</p>
+    <section>
+
+      <div class="topbar">
+        <div>
+          <span class="page-kicker">EARNX</span>
+          <h1 class="page-title">Build. Create. Own.</h1>
+          <p class="page-subtitle">
+            Premium creator infrastructure for content, discovery, messaging, subscriptions, and audience momentum.
+          </p>
+        </div>
       </div>
-      <div class="hero-actions">
+
+      <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
         <button class="btn btn-primary" data-nav="discover">Discover talent</button>
         <button class="btn btn-secondary" data-nav="profile">Open profile</button>
         <button class="btn btn-secondary" id="themeToggleBtn">Toggle theme</button>
       </div>
-    </section>
 
-    ${renderStories()}
-    ${renderTop5()}
+      <section class="section">
+        <div class="section-head">
+          <h3>Stories · 24h</h3>
+          <span class="section-meta">Ephemeral creator moments</span>
+        </div>
 
-    <section class="section">
-      <div class="section-head">
-        <h3>Feed</h3>
-        <span class="section-meta">Friendly, premium, creator-first feed</span>
-      </div>
-      <div class="tabs">
-        <button class="tab ${state.ui.feedFilter === "following" ? "active" : ""}" data-feed-filter="following">Following</button>
-        <button class="tab ${state.ui.feedFilter === "trending" ? "active" : ""}" data-feed-filter="trending">Trending</button>
-        <button class="tab ${state.ui.feedFilter === "premium" ? "active" : ""}" data-feed-filter="premium">Premium</button>
-      </div>
+        <div class="story-strip">
+          ${state.stories.map(story => {
+            const user = userById(story.userId);
+            const isOwn = story.own;
+            return `
+              <div class="story-card ${isOwn ? "story-create" : ""}">
+                <div class="story-ring">
+                  <div class="story-ring-inner">
+                    ${isOwn ? `<span class="story-plus">+</span>` : escapeHtml(getInitials(user.displayName))}
+                  </div>
+                </div>
+                <div class="story-name">${isOwn ? "Your story" : escapeHtml(user.displayName.split(" ")[0])}</div>
+                <div class="story-time">${isOwn ? "Add" : `${story.hoursAgo}h ago`}</div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </section>
 
-      <div class="feed-list" style="margin-top:18px;">
-        ${filteredPosts().map(renderPost).join("")}
-      </div>
+      <section class="section">
+        <div class="section-head">
+          <h3>Top 5 Global Creators</h3>
+          <span class="section-meta">Ranked by earnings + algorithmic momentum</span>
+        </div>
+
+        <div class="top5-grid">
+          ${top5Users().map((user, index) => `
+            <article class="top5-card">
+              <div class="top5-rank">#${index + 1}</div>
+              <div class="top5-user">
+                ${renderAvatar(user, "avatar-md")}
+                <div>
+                  <div class="top5-name">${escapeHtml(user.displayName)}</div>
+                  <div class="top5-handle">@${escapeHtml(user.username)} · ${escapeHtml(user.category)}</div>
+                </div>
+              </div>
+              <div class="top5-stats">
+                <span class="chip">${formatMoney(earningsScore(user))}</span>
+                <span class="chip">Score ${scoreUser(user)}</span>
+                <span class="chip">${followerCount(user.id)} followers</span>
+              </div>
+            </article>
+          `).join("")}
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h3>Feed</h3>
+          <span class="section-meta">Friendly, premium, creator-first feed</span>
+        </div>
+
+        <div class="tabs">
+          <button class="tab ${state.ui.feedFilter === "following" ? "active" : ""}" data-feed-filter="following">Following</button>
+          <button class="tab ${state.ui.feedFilter === "trending" ? "active" : ""}" data-feed-filter="trending">Trending</button>
+          <button class="tab ${state.ui.feedFilter === "premium" ? "active" : ""}" data-feed-filter="premium">Premium</button>
+        </div>
+
+        <div class="feed-list" style="margin-top:18px;">
+          ${filteredPosts().map(renderPost).join("")}
+        </div>
+      </section>
+
     </section>
   `;
 }
-
 function renderPost(post) {
   const user = userById(post.userId);
   const liked = isLiked(post.id);
