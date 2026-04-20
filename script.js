@@ -1,4 +1,4 @@
-const STORAGE_KEY = "earnx_master_v2";
+const STORAGE_KEY = "earnx_v1_real";
 
 const initialUI = {
   authView: "login",
@@ -23,24 +23,20 @@ function createInitialState() {
     messages: getMockMessages(),
     localLikes: {},
     wallet: getMockWallet(),
-    settings: getMockSettings()
+    settings: getMockSettings(),
+    stories: getMockStories(),
+    subscriptions: getMockSubscriptions()
   };
 }
 
 let state = createInitialState();
 
-/* -------------------------
-   BOOT
-------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
   loadState();
   applyTheme();
   render();
 });
 
-/* -------------------------
-   MOCK DATA
-------------------------- */
 function getMockUsers() {
   return [
     {
@@ -94,6 +90,19 @@ function getMockUsers() {
       bio: "Visual creator focused on premium community and aesthetic content.",
       avatarUrl: "",
       coverUrl: ""
+    },
+    {
+      id: "u5",
+      username: "kai",
+      email: "kai@test.com",
+      password: "1234",
+      displayName: "Kai Monroe",
+      country: "US",
+      verified: true,
+      category: "fitness",
+      bio: "High-performance coaching, premium drops, and live engagement.",
+      avatarUrl: "",
+      coverUrl: ""
     }
   ];
 }
@@ -135,6 +144,15 @@ function getMockPosts() {
       likesCount: 67,
       commentsCount: 4,
       createdAt: Date.now() - 1000 * 60 * 60 * 15
+    },
+    {
+      id: "p5",
+      userId: "u5",
+      content: "Daily performance systems. Build discipline and own your output.",
+      monetized: true,
+      likesCount: 155,
+      commentsCount: 18,
+      createdAt: Date.now() - 1000 * 60 * 60 * 7
     }
   ];
 }
@@ -143,9 +161,12 @@ function getMockFollows() {
   return [
     { followerId: "u1", followingId: "u2" },
     { followerId: "u1", followingId: "u3" },
+    { followerId: "u1", followingId: "u5" },
     { followerId: "u2", followingId: "u4" },
     { followerId: "u3", followingId: "u2" },
-    { followerId: "u4", followingId: "u2" }
+    { followerId: "u4", followingId: "u2" },
+    { followerId: "u5", followingId: "u2" },
+    { followerId: "u5", followingId: "u4" }
   ];
 }
 
@@ -253,9 +274,39 @@ function getMockSettings() {
   };
 }
 
-/* -------------------------
-   STORAGE
-------------------------- */
+function getMockStories() {
+  return [
+    { id: "s0", userId: "u1", hoursAgo: 1, own: true },
+    { id: "s1", userId: "u2", hoursAgo: 2 },
+    { id: "s2", userId: "u3", hoursAgo: 5 },
+    { id: "s3", userId: "u4", hoursAgo: 7 },
+    { id: "s4", userId: "u5", hoursAgo: 11 }
+  ];
+}
+
+function getMockSubscriptions() {
+  return [
+    {
+      creatorId: "u2",
+      priceMonthly: 9,
+      tierName: "Inner Circle",
+      perks: ["Premium posts", "Priority replies", "Exclusive drops"]
+    },
+    {
+      creatorId: "u4",
+      priceMonthly: 12,
+      tierName: "Studio Access",
+      perks: ["Behind the scenes", "Early previews", "Private community"]
+    },
+    {
+      creatorId: "u5",
+      priceMonthly: 15,
+      tierName: "Performance Pro",
+      perks: ["Premium sessions", "Member Q&A", "Exclusive coaching notes"]
+    }
+  ];
+}
+
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
@@ -264,24 +315,17 @@ function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
-
     const parsed = JSON.parse(raw);
     state = {
       ...createInitialState(),
       ...parsed,
-      ui: {
-        ...initialUI,
-        ...(parsed.ui || {})
-      }
+      ui: { ...initialUI, ...(parsed.ui || {}) }
     };
   } catch (err) {
     console.warn("Could not load state", err);
   }
 }
 
-/* -------------------------
-   HELPERS
-------------------------- */
 function currentUser() {
   return state.users.find(u => u.id === state.sessionUserId) || null;
 }
@@ -292,12 +336,7 @@ function userById(id) {
 
 function getInitials(name) {
   if (!name) return "?";
-  return name
-    .split(" ")
-    .map(part => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  return name.split(" ").map(part => part[0]).join("").slice(0, 2).toUpperCase();
 }
 
 function followerCount(id) {
@@ -309,23 +348,36 @@ function followingCount(id) {
 }
 
 function userPosts(id) {
-  return state.posts
-    .filter(p => p.userId === id)
-    .sort((a, b) => b.createdAt - a.createdAt);
+  return state.posts.filter(p => p.userId === id).sort((a, b) => b.createdAt - a.createdAt);
 }
 
 function isFollowing(followerId, followingId) {
-  return state.follows.some(
-    f => f.followerId === followerId && f.followingId === followingId
-  );
+  return state.follows.some(f => f.followerId === followerId && f.followingId === followingId);
 }
 
 function scoreUser(user) {
   return followerCount(user.id) * 10 + userPosts(user.id).length * 20 + (user.verified ? 50 : 0);
 }
 
+function earningsScore(user) {
+  const scores = {
+    u2: 18200,
+    u4: 15900,
+    u5: 14300,
+    u1: 12940,
+    u3: 7200
+  };
+  return scores[user.id] || 0;
+}
+
 function rankingUsers() {
   return [...state.users].sort((a, b) => scoreUser(b) - scoreUser(a));
+}
+
+function top5Users() {
+  return [...state.users]
+    .sort((a, b) => earningsScore(b) - earningsScore(a))
+    .slice(0, 5);
 }
 
 function formatRelative(ts) {
@@ -357,9 +409,10 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-/* -------------------------
-   THEME
-------------------------- */
+function getSubscriptionForCreator(creatorId) {
+  return state.subscriptions.find(s => s.creatorId === creatorId) || null;
+}
+
 function applyTheme() {
   document.body.classList.toggle("light-theme", state.ui.theme === "light");
   document.body.classList.toggle("dark-theme", state.ui.theme !== "light");
@@ -372,12 +425,8 @@ function toggleTheme() {
   render();
 }
 
-/* -------------------------
-   AUTH
-------------------------- */
 function login(identifier, password) {
   const value = identifier.trim().toLowerCase();
-
   const user = state.users.find(
     u =>
       (((u.email || "").toLowerCase() === value) || u.username.toLowerCase() === value) &&
@@ -448,21 +497,15 @@ function logout() {
   render();
 }
 
-/* -------------------------
-   APP STATE ACTIONS
-------------------------- */
 function setAppView(view) {
   state.ui.appView = view;
-
   if (view !== "messages") {
     state.ui.messagesView = "inbox";
     state.ui.activeConvoUserId = null;
   }
-
   if (view === "profile") {
     state.ui.profileUserId = state.ui.profileUserId || state.sessionUserId;
   }
-
   saveState();
   render();
 }
@@ -519,9 +562,6 @@ function updatePreference(path, value) {
   render();
 }
 
-/* -------------------------
-   FEED
-------------------------- */
 function filteredPosts() {
   let posts = [...state.posts];
 
@@ -530,9 +570,7 @@ function filteredPosts() {
       .filter(f => f.followerId === state.sessionUserId)
       .map(f => f.followingId);
 
-    posts = posts.filter(
-      p => followingIds.includes(p.userId) || p.userId === state.sessionUserId
-    );
+    posts = posts.filter(p => followingIds.includes(p.userId) || p.userId === state.sessionUserId);
   }
 
   if (state.ui.feedFilter === "premium") {
@@ -548,9 +586,6 @@ function filteredPosts() {
   return posts;
 }
 
-/* -------------------------
-   DISCOVER
-------------------------- */
 function getDiscoverUsers() {
   let users = rankingUsers();
 
@@ -572,9 +607,6 @@ function getDiscoverUsers() {
   return users;
 }
 
-/* -------------------------
-   MESSAGES
-------------------------- */
 function getConversations() {
   const me = state.sessionUserId;
   const map = new Map();
@@ -595,9 +627,7 @@ function getConversations() {
     }
   });
 
-  return Array.from(map.values()).sort(
-    (a, b) => b.lastMessage.createdAt - a.lastMessage.createdAt
-  );
+  return Array.from(map.values()).sort((a, b) => b.lastMessage.createdAt - a.lastMessage.createdAt);
 }
 
 function getThread(userId) {
@@ -614,9 +644,7 @@ function getThread(userId) {
 
 function unreadCountForUser(userId) {
   const me = state.sessionUserId;
-  return state.messages.filter(
-    m => m.fromUserId === userId && m.toUserId === me && !m.read
-  ).length;
+  return state.messages.filter(m => m.fromUserId === userId && m.toUserId === me && !m.read).length;
 }
 
 function totalUnreadCount() {
@@ -667,9 +695,6 @@ function sendMessage(toUserId, text) {
   render();
 }
 
-/* -------------------------
-   RENDER HELPERS
-------------------------- */
 function renderAvatar(user, extraClass = "") {
   const url = user?.avatarUrl || "";
   const initials = getInitials(user?.displayName || user?.username || "?");
@@ -685,9 +710,6 @@ function renderAvatar(user, extraClass = "") {
   return `<div class="avatar ${extraClass}">${escapeHtml(initials)}</div>`;
 }
 
-/* -------------------------
-   ROOT RENDER
-------------------------- */
 function render() {
   const app = document.getElementById("app");
   if (!app) return;
@@ -701,9 +723,6 @@ function render() {
   bindEvents();
 }
 
-/* -------------------------
-   AUTH UI
-------------------------- */
 function renderAuthShell() {
   return `
     <main class="page">
@@ -719,6 +738,11 @@ function renderAuthShell() {
         <div class="intro">
           <h2>A premium social platform built around creator ambition, audience reach, and public ranking momentum.</h2>
           <p>Designed for creators who want stronger positioning, cleaner monetization, and a product that feels elevated from the first touch.</p>
+          <div class="slogan">
+            <span class="slogan-pill">Build.</span>
+            <span class="slogan-pill">Create.</span>
+            <span class="slogan-pill">Own.</span>
+          </div>
         </div>
 
         ${state.ui.authView === "login" ? renderLoginCard() : renderSignupCard()}
@@ -792,14 +816,11 @@ function renderSignupCard() {
         <a href="#" id="themeToggleLink">Toggle theme</a>
       </div>
 
-      <div class="note">Your account is stored locally in this browser.</div>
+      <div class="note">Your account is stored locally in this browser for now.</div>
     </div>
   `;
 }
 
-/* -------------------------
-   APP SHELL
-------------------------- */
 function renderAppShell() {
   return `
     <div class="app-shell app-shell-mobile">
@@ -846,7 +867,7 @@ function renderNav() {
 function renderPage() {
   switch (state.ui.appView) {
     case "home":
-      return renderFeed();
+      return renderHome();
     case "discover":
       return renderDiscover();
     case "messages":
@@ -855,35 +876,102 @@ function renderPage() {
       return renderProfile();
     case "wallet":
       return renderWallet();
-    case "settings":
-      return renderSettings();
     default:
-      return renderFeed();
+      return renderHome();
   }
 }
 
-/* -------------------------
-   FEED UI
-------------------------- */
-function renderFeed() {
+function renderStories() {
   return `
-    <div class="topbar">
-      <div>
-        <span class="page-kicker">EARNX</span>
-        <h1 class="page-title">Home Feed</h1>
-        <p class="page-subtitle">Friendly, premium, creator-first feed</p>
+    <section class="section">
+      <div class="section-head">
+        <h3>Stories · 24h</h3>
+        <span class="section-meta">Ephemeral creator moments</span>
       </div>
-    </div>
+      <div class="story-strip">
+        ${state.stories.map(story => {
+          const user = userById(story.userId);
+          const isOwn = story.own;
+          return `
+            <div class="story-card ${isOwn ? "story-create" : ""}">
+              <div class="story-ring">
+                <div class="story-ring-inner">${isOwn ? `<span class="story-plus">+</span>` : escapeHtml(getInitials(user.displayName))}</div>
+              </div>
+              <div class="story-name">${isOwn ? "Your story" : escapeHtml(user.displayName.split(" ")[0])}</div>
+              <div class="story-time">${isOwn ? "Add" : `${story.hoursAgo}h ago`}</div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </section>
+  `;
+}
 
-    <div class="tabs">
-      <button class="tab ${state.ui.feedFilter === "following" ? "active" : ""}" data-feed-filter="following">Following</button>
-      <button class="tab ${state.ui.feedFilter === "trending" ? "active" : ""}" data-feed-filter="trending">Trending</button>
-      <button class="tab ${state.ui.feedFilter === "premium" ? "active" : ""}" data-feed-filter="premium">Premium</button>
-    </div>
+function renderTop5() {
+  const users = top5Users();
 
-    <div class="feed-list" style="margin-top:18px;">
-      ${filteredPosts().map(renderPost).join("")}
-    </div>
+  return `
+    <section class="section">
+      <div class="section-head">
+        <h3>Top 5 Global Creators</h3>
+        <span class="section-meta">Ranked by earnings + algorithmic momentum</span>
+      </div>
+      <div class="top5-grid">
+        ${users.map((user, index) => `
+          <article class="top5-card">
+            <div class="top5-rank">#${index + 1}</div>
+            <div class="top5-user">
+              ${renderAvatar(user, "avatar-md")}
+              <div>
+                <div class="top5-name">${escapeHtml(user.displayName)}</div>
+                <div class="top5-handle">@${escapeHtml(user.username)} · ${escapeHtml(user.category)}</div>
+              </div>
+            </div>
+            <div class="top5-stats">
+              <span class="chip">${formatMoney(earningsScore(user))}</span>
+              <span class="chip">Score ${scoreUser(user)}</span>
+              <span class="chip">${followerCount(user.id)} followers</span>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderHome() {
+  return `
+    <section class="hero-home">
+      <div class="hero-home-copy">
+        <div class="page-kicker">EarnX</div>
+        <h2>Build. Create. Own.</h2>
+        <p>Premium creator infrastructure for content, discovery, messaging, subscriptions, and audience momentum.</p>
+      </div>
+      <div class="hero-actions">
+        <button class="btn btn-primary" data-nav="discover">Discover talent</button>
+        <button class="btn btn-secondary" data-nav="profile">Open profile</button>
+        <button class="btn btn-secondary" id="themeToggleBtn">Toggle theme</button>
+      </div>
+    </section>
+
+    ${renderStories()}
+    ${renderTop5()}
+
+    <section class="section">
+      <div class="section-head">
+        <h3>Feed</h3>
+        <span class="section-meta">Friendly, premium, creator-first feed</span>
+      </div>
+      <div class="tabs">
+        <button class="tab ${state.ui.feedFilter === "following" ? "active" : ""}" data-feed-filter="following">Following</button>
+        <button class="tab ${state.ui.feedFilter === "trending" ? "active" : ""}" data-feed-filter="trending">Trending</button>
+        <button class="tab ${state.ui.feedFilter === "premium" ? "active" : ""}" data-feed-filter="premium">Premium</button>
+      </div>
+
+      <div class="feed-list" style="margin-top:18px;">
+        ${filteredPosts().map(renderPost).join("")}
+      </div>
+    </section>
   `;
 }
 
@@ -910,9 +998,7 @@ function renderPost(post) {
 
       <div class="post-footer">
         <div class="post-reactions">
-          <button class="reaction-btn ${liked ? "reaction-liked" : ""}" data-like="${escapeHtml(post.id)}">
-            ❤️ <span>${likeCount}</span>
-          </button>
+          <button class="reaction-btn ${liked ? "reaction-liked" : ""}" data-like="${escapeHtml(post.id)}">❤️ <span>${likeCount}</span></button>
           <button class="reaction-btn">💬 <span>${post.commentsCount}</span></button>
         </div>
 
@@ -922,34 +1008,40 @@ function renderPost(post) {
   `;
 }
 
-/* -------------------------
-   DISCOVER UI
-------------------------- */
 function renderDiscover() {
   const users = getDiscoverUsers();
 
   return `
     <div class="topbar">
-      <div>
-        <span class="page-kicker">Discover</span>
-        <h1 class="page-title">Discover creators</h1>
-        <p class="page-subtitle">Find other users, creators, and content</p>
+      <div class="topbar-row">
+        <div>
+          <span class="page-kicker">Discover</span>
+          <h1 class="page-title">Discover creators</h1>
+          <p class="page-subtitle">Find new talent, browse categories, and track momentum.</p>
+        </div>
       </div>
     </div>
 
     <div>
-      <input class="search-input" id="searchInput" placeholder="Search creators..." value="${escapeHtml(state.ui.searchQuery)}" />
+      <input class="search-input" id="searchInput" placeholder="Search creators, categories, talent..." value="${escapeHtml(state.ui.searchQuery)}" />
     </div>
 
     <div class="cats-strip" style="margin-top:12px;">
-      ${["all", "tech", "lifestyle", "gaming", "art", "creator"].map(cat => `
+      ${["all", "tech", "lifestyle", "gaming", "art", "fitness", "creator"].map(cat => `
         <button class="cat-chip ${state.ui.discoverCategory === cat ? "active" : ""}" data-cat="${escapeHtml(cat)}">${escapeHtml(cat)}</button>
       `).join("")}
     </div>
 
-    <div class="list" style="margin-top:18px;">
-      ${users.map(renderCreatorCard).join("")}
-    </div>
+    <section class="section">
+      <div class="section-head">
+        <h3>Talent browser</h3>
+        <span class="section-meta">${users.length} creators found</span>
+      </div>
+
+      <div class="list">
+        ${users.map(renderCreatorCard).join("")}
+      </div>
+    </section>
   `;
 }
 
@@ -982,15 +1074,13 @@ function renderCreatorCard(user) {
   `;
 }
 
-/* -------------------------
-   PROFILE UI
-------------------------- */
 function renderProfile() {
   const me = currentUser();
   const profile = userById(state.ui.profileUserId) || me;
   const ownProfile = profile.id === me.id;
   const posts = userPosts(profile.id);
   const followed = isFollowing(me.id, profile.id);
+  const subscription = getSubscriptionForCreator(profile.id);
 
   return `
     <section class="panel">
@@ -1041,8 +1131,8 @@ function renderProfile() {
           ${
             ownProfile
               ? `
-                <button class="btn btn-primary">Edit Profile</button>
-                <button class="btn btn-secondary" data-nav="settings">Settings</button>
+                <button class="btn btn-primary">Upload avatar</button>
+                <button class="btn btn-secondary" data-nav="wallet">Creator wallet</button>
               `
               : `
                 <button class="btn btn-primary" data-follow="${escapeHtml(profile.id)}">
@@ -1052,6 +1142,8 @@ function renderProfile() {
               `
           }
         </div>
+
+        ${subscription ? renderSubscriptionCard(subscription, profile) : ""}
 
         <div class="profile-tabs" style="margin-top:22px;">
           <div class="profile-tab active">Posts</div>
@@ -1071,9 +1163,39 @@ function renderProfile() {
   `;
 }
 
-/* -------------------------
-   MESSAGES UI
-------------------------- */
+function renderSubscriptionCard(subscription, profile) {
+  return `
+    <section class="subscription-card section">
+      <div class="subscription-head">
+        ${renderAvatar(profile, "avatar-sm")}
+        <div>
+          <div class="page-kicker">Fan subscription</div>
+          <h3>${escapeHtml(subscription.tierName)}</h3>
+        </div>
+      </div>
+
+      <div class="subscribe-price">${formatMoney(subscription.priceMonthly)}<span style="font-size:.9rem;font-weight:700;color:var(--muted)"> / month</span></div>
+      <p class="subscription-copy">Support this creator directly and unlock premium access, stronger community proximity, and exclusive drops.</p>
+
+      <div class="subscription-benefits">
+        ${subscription.perks.map(perk => `
+          <div class="subscription-benefit"><span>✓</span>${escapeHtml(perk)}</div>
+        `).join("")}
+      </div>
+
+      <div class="subscription-plans">
+        <button class="subscribe-plan-btn active">Monthly</button>
+        <button class="subscribe-plan-btn">Yearly</button>
+      </div>
+
+      <div class="hero-actions" style="margin-top:16px;">
+        <button class="btn btn-primary">Subscribe now</button>
+        <button class="btn btn-secondary">View perks</button>
+      </div>
+    </section>
+  `;
+}
+
 function renderMessages() {
   if (state.ui.messagesView === "chat" && state.ui.activeConvoUserId) {
     return renderChatView();
@@ -1217,9 +1339,6 @@ function renderBubble(message) {
   `;
 }
 
-/* -------------------------
-   WALLET UI
-------------------------- */
 function renderWallet() {
   const w = state.wallet;
 
@@ -1294,7 +1413,7 @@ function renderWallet() {
               <span class="revenue-pill">Top source subscriptions</span>
               <span class="revenue-pill">Retention stable</span>
             </div>
-            <div class="revenue-visual">Revenue visualization placeholder</div>
+            <div class="revenue-visual">Creator analytics and earning visualization can live here.</div>
           </div>
         </div>
       </section>
@@ -1321,127 +1440,6 @@ function renderTransaction(tx) {
   `;
 }
 
-/* -------------------------
-   SETTINGS UI
-------------------------- */
-function renderSettings() {
-  return `
-    <div class="settings-shell">
-      <aside class="settings-nav">
-        <button class="settings-nav-btn ${state.ui.settingsTab === "preferences" ? "active" : ""}" data-settings-tab="preferences">Preferences</button>
-        <button class="settings-nav-btn ${state.ui.settingsTab === "notifications" ? "active" : ""}" data-settings-tab="notifications">Notifications</button>
-        <button class="settings-nav-btn ${state.ui.settingsTab === "privacy" ? "active" : ""}" data-settings-tab="privacy">Privacy</button>
-        <button class="settings-nav-btn ${state.ui.settingsTab === "account" ? "active" : ""}" data-settings-tab="account">Account</button>
-      </aside>
-
-      <section class="settings-main">
-        ${renderSettingsContent()}
-      </section>
-    </div>
-  `;
-}
-
-function renderSettingsContent() {
-  if (state.ui.settingsTab === "preferences") {
-    return `
-      <div class="settings-section">
-        <div class="settings-section-head">
-          <h3>Preferences</h3>
-          <p>Adjust how the product feels and behaves.</p>
-        </div>
-
-        <div class="settings-row">
-          <div>
-            <div class="settings-row-title">Theme</div>
-            <div class="settings-row-sub">Switch between light and dark mode.</div>
-          </div>
-          <div>
-            <button class="btn btn-secondary" id="themeToggleInlineBtn">${state.ui.theme === "dark" ? "Dark" : "Light"}</button>
-          </div>
-        </div>
-
-        ${renderToggleRow("Compact feed", "Reduce feed density for faster scanning.", "preferences.compactFeed", state.settings.preferences.compactFeed)}
-        ${renderToggleRow("Autoplay media", "Automatically play eligible media previews.", "preferences.autoplayMedia", state.settings.preferences.autoplayMedia)}
-      </div>
-    `;
-  }
-
-  if (state.ui.settingsTab === "notifications") {
-    return `
-      <div class="settings-section">
-        <div class="settings-section-head">
-          <h3>Notifications</h3>
-          <p>Control how EARNX keeps you informed.</p>
-        </div>
-
-        ${renderToggleRow("App notifications", "General product notifications.", "notifications.app", state.settings.notifications.app)}
-        ${renderToggleRow("Messages", "Be notified when someone sends you a message.", "notifications.messages", state.settings.notifications.messages)}
-        ${renderToggleRow("Marketing updates", "Receive occasional product and growth updates.", "notifications.marketing", state.settings.notifications.marketing)}
-      </div>
-    `;
-  }
-
-  if (state.ui.settingsTab === "privacy") {
-    return `
-      <div class="settings-section">
-        <div class="settings-section-head">
-          <h3>Privacy</h3>
-          <p>Decide how visible your activity should be.</p>
-        </div>
-
-        ${renderToggleRow("Private profile", "Limit profile discoverability.", "privacy.privateProfile", state.settings.privacy.privateProfile)}
-        ${renderToggleRow("Hide activity", "Reduce public visibility of your activity.", "privacy.hideActivity", state.settings.privacy.hideActivity)}
-      </div>
-    `;
-  }
-
-  const me = currentUser();
-
-  return `
-    <div class="settings-section">
-      <div class="settings-section-head">
-        <h3>Account</h3>
-        <p>Review your account and creator mode setup.</p>
-      </div>
-
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <input class="settings-field" value="${escapeHtml(me?.email || "")}" readonly />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Creator mode</label>
-          <input class="settings-field" value="${state.settings.account.creatorMode ? "Enabled" : "Disabled"}" readonly />
-        </div>
-      </div>
-
-      <div class="soft-divider"></div>
-
-      <div class="account-card">
-        <div class="account-card-title">Account status</div>
-        <div class="account-card-sub">Your EARNX creator profile is active and ready for scaling.</div>
-      </div>
-    </div>
-  `;
-}
-
-function renderToggleRow(title, subtitle, path, enabled) {
-  return `
-    <div class="settings-row">
-      <div>
-        <div class="settings-row-title">${escapeHtml(title)}</div>
-        <div class="settings-row-sub">${escapeHtml(subtitle)}</div>
-      </div>
-      <div>
-        <button class="switch ${enabled ? "active" : ""}" data-toggle-setting="${escapeHtml(path)}"></button>
-      </div>
-    </div>
-  `;
-}
-
-/* -------------------------
-   EVENTS
-------------------------- */
 function bindEvents() {
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
@@ -1495,6 +1493,11 @@ function bindEvents() {
     };
   }
 
+  const themeToggleBtn = document.getElementById("themeToggleBtn");
+  if (themeToggleBtn) {
+    themeToggleBtn.onclick = toggleTheme;
+  }
+
   document.querySelectorAll("[data-nav]").forEach(btn => {
     btn.onclick = () => setAppView(btn.dataset.nav);
   });
@@ -1535,19 +1538,6 @@ function bindEvents() {
     btn.onclick = () => openChat(btn.dataset.openChat);
   });
 
-  document.querySelectorAll("[data-settings-tab]").forEach(btn => {
-    btn.onclick = () => setSettingsTab(btn.dataset.settingsTab);
-  });
-
-  document.querySelectorAll("[data-toggle-setting]").forEach(btn => {
-    btn.onclick = () => {
-      const path = btn.dataset.toggleSetting;
-      const [group, key] = path.split(".");
-      const current = state.settings[group][key];
-      updatePreference(path, !current);
-    };
-  });
-
   const searchInput = document.getElementById("searchInput");
   if (searchInput) {
     searchInput.oninput = e => {
@@ -1555,21 +1545,6 @@ function bindEvents() {
       saveState();
       render();
     };
-  }
-
-  const themeToggleBtn = document.getElementById("themeToggleBtn");
-  if (themeToggleBtn) {
-    themeToggleBtn.onclick = toggleTheme;
-  }
-
-  const themeToggleInlineBtn = document.getElementById("themeToggleInlineBtn");
-  if (themeToggleInlineBtn) {
-    themeToggleInlineBtn.onclick = toggleTheme;
-  }
-
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) {
-    logoutBtn.onclick = logout;
   }
 
   const backToInboxBtn = document.getElementById("backToInboxBtn");
@@ -1588,3 +1563,5 @@ function bindEvents() {
     };
   }
 }
+
+render();
