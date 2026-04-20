@@ -499,13 +499,24 @@ function logout() {
 
 function setAppView(view) {
   state.ui.appView = view;
+
+  if (view === "home") {
+    state.ui.messagesView = "inbox";
+    state.ui.activeConvoUserId = null;
+    state.ui.profileUserId = state.sessionUserId;
+    state.ui.searchQuery = "";
+    state.ui.discoverCategory = "all";
+  }
+
   if (view !== "messages") {
     state.ui.messagesView = "inbox";
     state.ui.activeConvoUserId = null;
   }
+
   if (view === "profile") {
     state.ui.profileUserId = state.ui.profileUserId || state.sessionUserId;
   }
+
   saveState();
   render();
 }
@@ -1497,11 +1508,14 @@ function bindEvents() {
   if (themeToggleBtn) {
     themeToggleBtn.onclick = toggleTheme;
   }
-
-  document.querySelectorAll("[data-nav]").forEach(btn => {
-    btn.onclick = () => setAppView(btn.dataset.nav);
-  });
-
+document.querySelectorAll("[data-nav]").forEach(btn => {
+  btn.onclick = () => {
+    const view = btn.dataset.nav;
+    setAppView(view);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+});
+  
   document.querySelectorAll("[data-feed-filter]").forEach(btn => {
     btn.onclick = () => {
       state.ui.feedFilter = btn.dataset.feedFilter;
