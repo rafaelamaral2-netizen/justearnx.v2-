@@ -849,7 +849,6 @@ function renderAppShell() {
       <main class="page-content page-content-mobile">
         ${renderPage()}
       </main>
-      ${renderNav()}
     </div>
   `;
 }
