@@ -425,17 +425,17 @@ function applyTheme() {
   }
 }
 
-function toggleTheme() {
-  const themes = ["dark", "light", "pink"];
-  const currentIndex = themes.indexOf(state.ui.theme);
-  const nextIndex = (currentIndex + 1) % themes.length;
+function applyTheme() {
+  document.body.classList.remove("dark-theme", "light-theme", "pink-theme");
 
-  state.ui.theme = themes[nextIndex];
-  saveState();
-  applyTheme();
-  render();
+  if (state.ui.theme === "light") {
+    document.body.classList.add("light-theme");
+  } else if (state.ui.theme === "pink") {
+    document.body.classList.add("pink-theme");
+  } else {
+    document.body.classList.add("dark-theme");
+  }
 }
-
 function login(identifier, password) {
   const value = identifier.trim().toLowerCase();
   const user = state.users.find(
@@ -898,6 +898,8 @@ function renderPage() {
       return renderProfile();
     case "wallet":
       return renderWallet();
+    case "settings":
+      return renderSettings();
     default:
       return renderHome();
   }
@@ -975,8 +977,9 @@ function renderHome() {
       </div>
 
       <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn btn-primary" data-nav="discover">Discover talent</button>
-        <button class="btn btn-secondary" data-nav="profile">Open profile</button>
+        <button class="btn btn-primary">Upload avatar</button>
+<button class="btn btn-secondary" data-nav="wallet">Creator wallet</button>
+<button class="btn btn-secondary" data-nav="settings">Settings</button>
       </div>
 
       <section class="section">
@@ -1493,7 +1496,78 @@ function renderWallet() {
     </div>
   `;
 }
+function renderSettings() {
+  return `
+    <div class="settings-shell">
+      <aside class="settings-nav">
+        <button class="settings-nav-btn ${state.ui.settingsTab === "preferences" ? "active" : ""}" data-settings-tab="preferences">Preferences</button>
+        <button class="settings-nav-btn ${state.ui.settingsTab === "notifications" ? "active" : ""}" data-settings-tab="notifications">Notifications</button>
+        <button class="settings-nav-btn ${state.ui.settingsTab === "privacy" ? "active" : ""}" data-settings-tab="privacy">Privacy</button>
+        <button class="settings-nav-btn ${state.ui.settingsTab === "account" ? "active" : ""}" data-settings-tab="account">Account</button>
+      </aside>
 
+      <section class="settings-main">
+        ${renderSettingsContent()}
+      </section>
+    </div>
+  `;
+}
+
+function renderSettingsContent() {
+  if (state.ui.settingsTab === "preferences") {
+    return `
+      <div class="settings-section">
+        <div class="settings-section-head">
+          <h3>Preferences</h3>
+          <p>Adjust how the product feels and behaves.</p>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-title">Theme</div>
+            <div class="settings-row-sub">Switch between dark, light, and pink mode.</div>
+          </div>
+          <div>
+            <button class="btn btn-secondary" id="themeToggleInlineBtn">
+              Theme: ${state.ui.theme}
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (state.ui.settingsTab === "notifications") {
+    return `
+      <div class="settings-section">
+        <div class="settings-section-head">
+          <h3>Notifications</h3>
+          <p>Notification controls will live here.</p>
+        </div>
+      </div>
+    `;
+  }
+
+  if (state.ui.settingsTab === "privacy") {
+    return `
+      <div class="settings-section">
+        <div class="settings-section-head">
+          <h3>Privacy</h3>
+          <p>Privacy controls will live here.</p>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="settings-section">
+      <div class="settings-section-head">
+        <h3>Account</h3>
+        <p>Account controls will live here.</p>
+      </div>
+    </div>
+  `;
+}
 function renderTransaction(tx) {
   return `
     <div class="wallet-activity-row">
@@ -1577,7 +1651,18 @@ document.querySelectorAll("[data-nav]").forEach(btn => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 });
-  
+  document.querySelectorAll("[data-settings-tab]").forEach(btn => {
+  btn.onclick = () => {
+    state.ui.settingsTab = btn.dataset.settingsTab;
+    saveState();
+    render();
+  };
+});
+
+const themeToggleInlineBtn = document.getElementById("themeToggleInlineBtn");
+if (themeToggleInlineBtn) {
+  themeToggleInlineBtn.onclick = toggleTheme;
+}
   document.querySelectorAll("[data-feed-filter]").forEach(btn => {
     btn.onclick = () => {
       state.ui.feedFilter = btn.dataset.feedFilter;
