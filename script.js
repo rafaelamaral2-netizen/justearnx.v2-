@@ -414,12 +414,23 @@ function getSubscriptionForCreator(creatorId) {
 }
 
 function applyTheme() {
-  document.body.classList.toggle("light-theme", state.ui.theme === "light");
-  document.body.classList.toggle("dark-theme", state.ui.theme !== "light");
+  document.body.classList.remove("dark-theme", "light-theme", "pink-theme");
+
+  if (state.ui.theme === "light") {
+    document.body.classList.add("light-theme");
+  } else if (state.ui.theme === "pink") {
+    document.body.classList.add("pink-theme");
+  } else {
+    document.body.classList.add("dark-theme");
+  }
 }
 
 function toggleTheme() {
-  state.ui.theme = state.ui.theme === "dark" ? "light" : "dark";
+  const themes = ["dark", "light", "pink"];
+  const currentIndex = themes.indexOf(state.ui.theme);
+  const nextIndex = (currentIndex + 1) % themes.length;
+
+  state.ui.theme = themes[nextIndex];
   saveState();
   applyTheme();
   render();
