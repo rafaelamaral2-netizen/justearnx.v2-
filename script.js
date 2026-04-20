@@ -1264,14 +1264,11 @@ function renderSubscriptionCard(subscription, profile) {
         <button class="subscribe-plan-btn active">Monthly</button>
         <button class="subscribe-plan-btn">Yearly</button>
       </div>
-
-      <div class="hero-actions" style="margin-top:16px;">
-        <button class="btn btn-primary">Subscribe now</button>
-        <button class="btn btn-secondary">View perks</button>
-      </div>
-    </section>
-  `;
-}
+<div class="hero-actions">
+  <button class="btn btn-primary" data-nav="discover">Discover talent</button>
+  <button class="btn btn-secondary" data-nav="profile">Open profile</button>
+</div>
+      
 
 function renderMessages() {
   if (state.ui.messagesView === "chat" && state.ui.activeConvoUserId) {
