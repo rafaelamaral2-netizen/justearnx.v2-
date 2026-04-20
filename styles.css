@@ -1409,3 +1409,85 @@ body.pink-theme .chat-send-btn {
     max-width: 88%;
   }
 }
+/* =========================
+   PINK MODE MASTER
+========================= */
+.pink-theme {
+  background: linear-gradient(135deg, #ff4db8, #ff80c0);
+  color: #fff;
+}
+
+/* TEXTOS */
+.pink-theme h1,
+.pink-theme h2,
+.pink-theme h3,
+.pink-theme h4,
+.pink-theme p,
+.pink-theme span {
+  color: #fff;
+}
+
+/* CARDS */
+.pink-theme .card,
+.pink-theme .post-card,
+.pink-theme .creator-card,
+.pink-theme .wallet-card,
+.pink-theme .settings-section,
+.pink-theme .chat-panel,
+.pink-theme .inbox-panel {
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+}
+
+/* NAVBAR */
+.pink-theme .bottom-nav {
+  background: rgba(0, 0, 0, 0.9);
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.pink-theme .bottom-nav-btn {
+  color: rgba(255,255,255,0.6);
+}
+
+.pink-theme .bottom-nav-btn.active {
+  color: #00ff9c;
+  background: rgba(0,255,156,0.1);
+}
+
+/* BOTONES */
+.pink-theme .button,
+.pink-theme .btn-primary {
+  background: #00ff9c;
+  color: black;
+}
+
+.pink-theme .btn-secondary {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+/* INPUTS */
+.pink-theme .input,
+.pink-theme textarea {
+  background: rgba(255,255,255,0.1);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* STORIES */
+.pink-theme .story-circle {
+  border: 2px solid #00ff9c;
+}
+
+/* BADGES */
+.pink-theme .badge-premium {
+  background: #00ff9c;
+  color: black;
+}
+
+/* EFECTO PREMIUM */
+.pink-theme .card:hover,
+.pink-theme .post-card:hover {
+  box-shadow: 0 0 20px rgba(255, 77, 184, 0.4);
+}
