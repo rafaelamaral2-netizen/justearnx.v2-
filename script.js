@@ -1,4 +1,4 @@
-const STORAGE_KEY = "earnx_master_monetization_v1";
+const STORAGE_KEY = "earnx_master_monetization_v2";
 
 const initialUI = {
   authView: "login",
@@ -26,7 +26,7 @@ function createInitialState() {
     settings: getMockSettings(),
     stories: getMockStories(),
     subscriptionsCatalog: getMockSubscriptionsCatalog(),
-    activeSubscriptions: ["u2"]
+    activeSubscriptions: []
   };
 }
 
@@ -468,6 +468,10 @@ function canViewPremiumPost(post) {
   return isSubscribedTo(post.userId);
 }
 
+function getSubscribeButtonLabel(creatorId) {
+  return isSubscribedTo(creatorId) ? "Subscribed" : "Subscribe";
+}
+
 /* -------------------------
    THEME
 ------------------------- */
@@ -653,17 +657,24 @@ function subscribeToCreator(creatorId) {
   const subscription = getSubscriptionForCreator(creatorId);
   if (!subscription) return;
 
+  if (creatorId === state.sessionUserId) {
+    alert("You cannot subscribe to your own profile.");
+    return;
+  }
+
   if (isSubscribedTo(creatorId)) {
     alert("You are already subscribed.");
     return;
   }
 
+  if (state.wallet.available < subscription.priceMonthly) {
+    alert("Insufficient balance.");
+    return;
+  }
+
   state.activeSubscriptions.push(creatorId);
 
-  state.wallet.available = Math.max(
-    0,
-    state.wallet.available - subscription.priceMonthly
-  );
+  state.wallet.available -= subscription.priceMonthly;
 
   state.wallet.recentTransactions.unshift({
     id: "t" + (state.wallet.recentTransactions.length + 1),
@@ -680,9 +691,22 @@ function subscribeToCreator(creatorId) {
 }
 
 function unsubscribeFromCreator(creatorId) {
+  if (!isSubscribedTo(creatorId)) return;
+
   state.activeSubscriptions = state.activeSubscriptions.filter(
     id => id !== creatorId
   );
+
+  state.wallet.recentTransactions.unshift({
+    id: "t" + (state.wallet.recentTransactions.length + 1),
+    title: `Subscription canceled · ${userById(creatorId)?.displayName || "Creator"}`,
+    subtitle: "Premium access removed",
+    amount: 0,
+    type: "reserved",
+    status: "canceled",
+    createdAt: Date.now()
+  });
+
   saveState();
   render();
 }
@@ -855,6 +879,19 @@ function renderAvatar(user, extraClass = "") {
   }
 
   return `<div class="avatar ${extraClass}">${escapeHtml(initials)}</div>`;
+}
+
+function renderSubscribeAction(creatorId, variant = "primary") {
+  if (creatorId === state.sessionUserId) return "";
+
+  const subscription = getSubscriptionForCreator(creatorId);
+  if (!subscription) return "";
+
+  if (isSubscribedTo(creatorId)) {
+    return `<button class="btn btn-secondary" data-unsubscribe="${escapeHtml(creatorId)}">Subscribed</button>`;
+  }
+
+  return `<button class="btn ${variant === "secondary" ? "btn-secondary" : "btn-primary"}" data-subscribe="${escapeHtml(creatorId)}">Subscribe</button>`;
 }
 
 /* -------------------------
@@ -1295,15 +1332,7 @@ function renderCreatorCard(user) {
 
       <div class="creator-actions" style="margin-top:14px;">
         <button class="btn btn-secondary" data-profile="${escapeHtml(user.id)}">View profile</button>
-        ${
-          subscription && user.id !== state.sessionUserId
-            ? `
-              <button class="btn btn-primary" data-subscribe="${escapeHtml(user.id)}">
-                ${subscribed ? "Subscribed" : "Subscribe"}
-              </button>
-            `
-            : ""
-        }
+        ${renderSubscribeAction(user.id)}
       </div>
     </article>
   `;
@@ -1383,6 +1412,7 @@ function renderProfile() {
                   ${followed ? "Following" : "Follow"}
                 </button>
                 <button class="btn btn-secondary" data-message-user="${escapeHtml(profile.id)}">Message</button>
+                ${renderSubscribeAction(profile.id)}
               `
           }
         </div>
