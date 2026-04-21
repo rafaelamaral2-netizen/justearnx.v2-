@@ -511,9 +511,9 @@ async function login(identifier, password) {
   const email = identifier.trim().toLowerCase();
 
   const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
+  email: email,
+  password: password
+});
 
   if (error) {
     alert(error.message);
