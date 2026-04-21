@@ -526,50 +526,39 @@ async function login(identifier, password) {
   saveState();
   render();
 }
-
-function signup({ displayName, username, email, password }) {
+async function signup({ displayName, username, email, password }) {
   const emailNorm = email.trim().toLowerCase();
   const usernameNorm = username.trim().toLowerCase();
 
-  if (!displayName.trim() || !usernameNorm || !emailNorm || !password.trim()) {
-    alert("Complete all fields");
-    return;
-  }
-
-  if (state.users.some(user => (user.email || "").toLowerCase() === emailNorm)) {
-    alert("That email already exists");
-    return;
-  }
-
-  if (state.users.some(user => user.username.toLowerCase() === usernameNorm)) {
-    alert("That username already exists");
-    return;
-  }
-
-  const newUser = {
-    id: "u" + (state.users.length + 1),
-    username: usernameNorm,
+  const { data, error } = await supabase.auth.signUp({
     email: emailNorm,
     password: password.trim(),
-    displayName: displayName.trim(),
-    country: "PR",
-    verified: false,
-    category: "creator",
-    bio: "New creator on EARNX.",
-    avatarUrl: "",
-    coverUrl: ""
-  };
+    options: {
+      data: {
+        display_name: displayName.trim(),
+        username: usernameNorm
+      }
+    }
+  });
 
-  state.users.push(newUser);
-  state.sessionUserId = newUser.id;
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  alert("Cuenta creada. Ahora haz login.");
   state.ui.authView = "login";
-  state.ui.appView = "home";
-  state.ui.profileUserId = newUser.id;
   saveState();
   render();
 }
+async function logout() {
+  const { error } = await supabase.auth.signOut();
 
-function logout() {
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
   state.sessionUserId = null;
   state.ui.authView = "login";
   state.ui.appView = "home";
