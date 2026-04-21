@@ -1,9 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
 const supabaseUrl = "https://duyltyirtffzomrnielr.supabase.co";
-const supabaseKey = "sb_publishable_Pk6U7o0UpRuYx2eMyhFWwA_3C53R32C";
+const supabaseKey = "TU_PUBLISHABLE_KEY_REAL";
 const supabase = createClient(supabaseUrl, supabaseKey);
-
 const STORAGE_KEY = "earnx_master_0_2";
 
 const initialUI = {
@@ -69,22 +68,31 @@ document.addEventListener("DOMContentLoaded", async () => {
   } = await supabase.auth.getSession();
 
   if (session?.user) {
-    state.session = session;
-    await hydrateSessionUser(session.user);
+    await syncSessionIntoState(session.user);
+  }
+
+  document.addEventListener("DOMContentLoaded", async () => {
+  loadState();
+  applyTheme();
+
+  const {
+    data: { session }
+  } = await supabase.auth.getSession();
+
+  if (session?.user) {
+    await syncSessionIntoState(session.user);
   }
 
   supabase.auth.onAuthStateChange(async (_event, session) => {
-    state.session = session || null;
-
     if (session?.user) {
-      await hydrateSessionUser(session.user);
+      await syncSessionIntoState(session.user);
     } else {
       state.sessionUserId = null;
-      state.profile = null;
+      state.ui.authView = "login";
       state.ui.appView = "home";
-      state.ui.profileUserId = null;
       state.ui.messagesView = "inbox";
       state.ui.activeConvoUserId = null;
+      state.ui.profileUserId = null;
     }
 
     saveState();
@@ -93,7 +101,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   render();
 });
-
 /* -------------------------
    STORAGE
 ------------------------- */
@@ -201,6 +208,56 @@ async function hydrateSessionUser(user) {
 /* -------------------------
    HELPERS
 ------------------------- */
+ async function syncSessionIntoState(user) {
+  const email = (user.email || "").toLowerCase();
+
+  let localUser = state.users.find(
+    item => (item.email || "").toLowerCase() === email
+  );
+
+  let profileData = null;
+
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (!error) {
+      profileData = data;
+    }
+  } catch (err) {
+    console.warn("Profile fetch failed", err);
+  }
+
+  if (!localUser) {
+    localUser = {
+      id: user.id,
+      username:
+        profileData?.username ||
+        user.user_metadata?.username ||
+        email.split("@")[0],
+      email,
+      password: "",
+      displayName:
+        profileData?.display_name ||
+        user.user_metadata?.display_name ||
+        email.split("@")[0],
+      country: profileData?.country || "PR",
+      verified: !!profileData?.verified,
+      category: profileData?.category || "creator",
+      bio: profileData?.bio || "New creator on EARNX.",
+      avatarUrl: profileData?.avatar_url || "",
+      coverUrl: profileData?.cover_url || ""
+    };
+
+    state.users.push(localUser);
+  }
+
+  state.sessionUserId = localUser.id;
+  state.ui.profileUserId = localUser.id;
+} 
 function currentUser() {
   return state.profile || null;
 }
@@ -388,9 +445,13 @@ async function login(identifier, password) {
 
   if (error) {
     alert(error.message);
+    return;
   }
-}
 
+  state.ui.appView = "home";
+  saveState();
+  render();
+}
 async function signup({ displayName, username, email, password }) {
   const emailNorm = email.trim().toLowerCase();
   const usernameNorm = username.trim().toLowerCase();
@@ -412,6 +473,28 @@ async function signup({ displayName, username, email, password }) {
   }
 
   if (data.user) {
+    const newLocalUser = {
+      id: data.user.id,
+      username: usernameNorm,
+      email: emailNorm,
+      password: "",
+      displayName: displayName.trim(),
+      country: "PR",
+      verified: false,
+      category: "creator",
+      bio: "New creator on EARNX.",
+      avatarUrl: "",
+      coverUrl: ""
+    };
+
+    const exists = state.users.find(
+      user => (user.email || "").toLowerCase() === emailNorm
+    );
+
+    if (!exists) {
+      state.users.push(newLocalUser);
+    }
+
     try {
       await supabase.from("profiles").upsert({
         id: data.user.id,
@@ -421,7 +504,7 @@ async function signup({ displayName, username, email, password }) {
         bio: "New creator on EARNX."
       });
     } catch (err) {
-      console.warn("Profile upsert warning:", err);
+      console.warn("Profile upsert failed", err);
     }
   }
 
@@ -430,7 +513,6 @@ async function signup({ displayName, username, email, password }) {
   saveState();
   render();
 }
-
 async function logout() {
   const { error } = await supabase.auth.signOut();
 
@@ -440,8 +522,6 @@ async function logout() {
   }
 
   state.sessionUserId = null;
-  state.session = null;
-  state.profile = null;
   state.ui.authView = "login";
   state.ui.appView = "home";
   state.ui.messagesView = "inbox";
@@ -450,7 +530,6 @@ async function logout() {
   saveState();
   render();
 }
-
 /* -------------------------
    APP ACTIONS
 ------------------------- */
