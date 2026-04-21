@@ -1,36 +1,135 @@
+/* =========================================================
+   EARNX — BASE
+========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #07090d;
+  --bg-2: #0d1117;
+  --bg-3: #131922;
+  --bg-4: #1a2230;
+
+  --text: #eef2f7;
+  --muted: #8d98a8;
+  --muted-2: #647084;
+
+  --line: rgba(255, 255, 255, 0.08);
+  --line-soft: rgba(255, 255, 255, 0.05);
+
+  --accent: #6bf178;
+  --accent-2: #49d96f;
+  --accent-soft: rgba(107, 241, 120, 0.12);
+
+  --danger: #ff6478;
+  --warning: #f0c85d;
+  --info: #65b8ff;
+
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.38);
+  --shadow-lg: 0 24px 56px rgba(0, 0, 0, 0.5);
+
+  --radius-xl: 28px;
+  --radius-lg: 22px;
+  --radius-md: 18px;
+  --radius-sm: 14px;
+
+  --nav-height: 88px;
+}
+
+body.light-theme {
+  --bg: #f4f7fb;
+  --bg-2: #ffffff;
+  --bg-3: #f2f5f9;
+  --bg-4: #e9eef5;
+
+  --text: #101828;
+  --muted: #667085;
+  --muted-2: #98a2b3;
+
+  --line: rgba(0, 0, 0, 0.08);
+  --line-soft: rgba(0, 0, 0, 0.04);
+
+  --accent: #28b463;
+  --accent-2: #1f9a53;
+  --accent-soft: rgba(40, 180, 99, 0.12);
+
+  --shadow: 0 14px 36px rgba(16, 24, 40, 0.08);
+  --shadow-lg: 0 22px 50px rgba(16, 24, 40, 0.12);
+}
+
+body.pink-theme {
+  --bg: #160b13;
+  --bg-2: #22111c;
+  --bg-3: #2a1622;
+  --bg-4: #381d2d;
+
+  --text: #ffeaf4;
+  --muted: #d2a6ba;
+  --muted-2: #a97089;
+
+  --line: rgba(255, 255, 255, 0.08);
+  --line-soft: rgba(255, 255, 255, 0.05);
+
+  --accent: #ff73b8;
+  --accent-2: #ff4fa3;
+  --accent-soft: rgba(255, 115, 184, 0.14);
+
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.42);
+  --shadow-lg: 0 24px 56px rgba(0, 0, 0, 0.54);
+}
+
+html,
 body {
-  background: #07090d;
-  color: #eef2f7;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  min-height: 100%;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-.page-content {
-  max-width: 900px;
-  margin: auto;
-  padding: 20px;
+body {
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 14%, transparent), transparent 28%),
+    radial-gradient(circle at top right, rgba(90, 140, 255, 0.08), transparent 20%),
+    linear-gradient(180deg, var(--bg-3), var(--bg));
+  color: var(--text);
+  overflow-x: hidden;
 }
 
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 70px;
-  display: flex;
-  justify-content: space-around;
-  background: #0d1117;
-  border-top: 1px solid rgba(255,255,255,0.1);
+img {
+  max-width: 100%;
+  display: block;
 }
 
-.bottom-nav-btn {
-  background: none;
-  color: white;
-  font-size: 14px;
+button,
+input,
+textarea,
+select {
+  font: inherit;
 }
 
-.post-card {
-  background: #131922;
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 12px;
+button {
+  border: none;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+textarea {
+  resize: none;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.clickable {
+  cursor: pointer;
 }
