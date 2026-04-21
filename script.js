@@ -507,24 +507,22 @@ function toggleTheme() {
 /* -------------------------
    AUTH
 ------------------------- */
-function login(identifier, password) {
-  const value = identifier.trim().toLowerCase();
+async function login(identifier, password) {
+  const email = identifier.trim().toLowerCase();
 
-  const user = state.users.find(
-    item =>
-      (((item.email || "").toLowerCase() === value) ||
-        item.username.toLowerCase() === value) &&
-      item.password === password
-  );
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
 
-  if (!user) {
-    alert("Invalid credentials");
+  if (error) {
+    alert(error.message);
     return;
   }
 
-  state.sessionUserId = user.id;
+  state.sessionUserId = data.user.id;
   state.ui.appView = "home";
-  state.ui.profileUserId = user.id;
+  state.ui.profileUserId = data.user.id;
   saveState();
   render();
 }
