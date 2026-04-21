@@ -1,209 +1,36 @@
-body.pink-theme .wallet-card {
-  background: linear-gradient(180deg, rgba(34, 17, 28, 0.98), rgba(44, 22, 34, 0.98));
+body {
+  background: #07090d;
+  color: #eef2f7;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-/* -------------------------
-   CARD BASE
-------------------------- */
-.card,
-.panel {
-  border-radius: var(--radius-lg);
-  padding: 18px;
+.page-content {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
 }
 
-/* -------------------------
-   INPUTS / FORMS
-------------------------- */
-.input {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: var(--radius-sm);
-  background: var(--bg-4);
-  border: 1px solid var(--line);
-  color: var(--text);
-  outline: none;
-  transition: 0.2s;
-}
-
-.input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-soft);
-}
-
-.label {
-  font-size: 0.8rem;
-  color: var(--muted);
-  margin-bottom: 6px;
-  display: block;
-}
-
-.field {
-  margin-bottom: 14px;
-}
-
-/* -------------------------
-   BUTTONS
-------------------------- */
-.button,
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 12px 14px;
-  border-radius: var(--radius-sm);
-  font-weight: 700;
-  transition: 0.2s;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  color: #06120a;
-}
-
-.btn-secondary {
-  background: var(--bg-4);
-  border: 1px solid var(--line);
-}
-
-.btn-danger {
-  background: var(--danger);
-  color: #fff;
-}
-
-/* -------------------------
-   NAV
-------------------------- */
 .bottom-nav {
   position: fixed;
+  bottom: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  height: var(--nav-height);
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  padding: 10px;
-  background: rgba(8, 11, 16, 0.9);
-  backdrop-filter: blur(18px);
-  border-top: 1px solid var(--line);
-  z-index: 999;
+  height: 70px;
+  display: flex;
+  justify-content: space-around;
+  background: #0d1117;
+  border-top: 1px solid rgba(255,255,255,0.1);
 }
 
 .bottom-nav-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 11px;
-  color: var(--muted);
-  gap: 4px;
+  background: none;
+  color: white;
+  font-size: 14px;
 }
 
-.bottom-nav-btn.active {
-  color: var(--accent);
-}
-
-/* -------------------------
-   AVATAR
-------------------------- */
-.avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: var(--accent-soft);
-  display: grid;
-  place-items: center;
-  font-weight: 800;
-  font-size: 0.9rem;
-}
-
-.avatar-xl {
-  width: 88px;
-  height: 88px;
-  font-size: 1.4rem;
-}
-
-/* -------------------------
-   PROFILE
-------------------------- */
-.profile-cover-zone {
-  height: 140px;
-  border-radius: var(--radius-lg);
-  background: var(--bg-4);
-  position: relative;
-}
-
-.profile-avatar-anchor {
-  position: absolute;
-  bottom: -40px;
-  left: 20px;
-}
-
-.profile-identity-block {
-  margin-top: 60px;
-}
-
-.profile-display-name {
-  margin: 0;
-  font-size: 1.4rem;
-}
-
-.profile-bio-text {
-  margin-top: 8px;
-  color: var(--muted);
-}
-
-/* -------------------------
-   POSTS
-------------------------- */
 .post-card {
-  border-radius: var(--radius-md);
+  background: #131922;
   padding: 16px;
-  margin-bottom: 16px;
-}
-
-.post-content {
-  margin-top: 10px;
-  line-height: 1.6;
-}
-
-/* -------------------------
-   WALLET
-------------------------- */
-.wallet-shell {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.wallet-card {
-  border-radius: var(--radius-md);
-  padding: 16px;
-}
-
-/* -------------------------
-   MESSAGES
-------------------------- */
-.messages-shell {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
-
-.chat-input-bar {
-  position: sticky;
-  bottom: var(--nav-height);
-}
-
-/* -------------------------
-   EMPTY STATES
-------------------------- */
-.empty-state {
-  text-align: center;
-  padding: 40px 10px;
-  color: var(--muted);
-}
-
-.empty-icon {
-  font-size: 28px;
-  margin-bottom: 10px;
+  border-radius: 12px;
+  margin-bottom: 12px;
 }
