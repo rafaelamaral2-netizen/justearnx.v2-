@@ -5,7 +5,7 @@ const supabaseKey = "sb_publishable_Pk6U7o0UpRuYx2eMyhFWwA_3C53R32C";
 console.log("SUPABASE URL:", supabaseUrl);
 console.log("SUPABASE KEY START:", supabaseKey.slice(0, 20));
 const supabase = createClient(supabaseUrl, supabaseKey);
-const STORAGE_KEY = "earnx_master_monetization_v2";
+const STORAGE_KEY = "earnx_master_monetization_v3";
 const initialUI = {
   authView: "login",
   appView: "home",
@@ -362,7 +362,7 @@ function loadState() {
    HELPERS
 ------------------------- */
 function currentUser() {
-  return state.users.find(user => user.id === state.sessionUserId) || state.users[0] || null;
+  return state.users.find(user => user.id === state.sessionUserId) || null;
 }
 function userById(id) {
   return state.users.find(u => u.id === id);
@@ -518,48 +518,17 @@ async function login(identifier, password) {
     return;
   }
 
-  const localUser =
-    state.users.find(user => (user.email || "").toLowerCase() === email) ||
-    state.users[0];
-
-  state.sessionUserId = localUser.id;
-  state.ui.appView = "home";
-  state.ui.profileUserId = localUser.id;
-
-  saveState();
-  render();
-}
-async function signup({ displayName, username, email, password }) {
-  const emailNorm = email.trim().toLowerCase();
-  const usernameNorm = username.trim().toLowerCase();
-
-  const { data, error } = await supabase.auth.signUp({
-    email: emailNorm,
-    password: password.trim(),
-    options: {
-      data: {
-        display_name: displayName.trim(),
-        username: usernameNorm
-      }
-    }
-  });
-
-  if (error) {
-    alert(error.message);
-    return;
-  }
-
-  const existingLocal = state.users.find(
-    user => (user.email || "").toLowerCase() === emailNorm
+  let localUser = state.users.find(
+    user => (user.email || "").toLowerCase() === email
   );
 
-  if (!existingLocal) {
-    const newLocalUser = {
+  if (!localUser) {
+    localUser = {
       id: "u" + (state.users.length + 1),
-      username: usernameNorm,
-      email: emailNorm,
-      password: password.trim(),
-      displayName: displayName.trim(),
+      username: data.user.user_metadata?.username || email.split("@")[0],
+      email: email,
+      password: "",
+      displayName: data.user.user_metadata?.display_name || email.split("@")[0],
       country: "PR",
       verified: false,
       category: "creator",
@@ -568,146 +537,16 @@ async function signup({ displayName, username, email, password }) {
       coverUrl: ""
     };
 
-    state.users.push(newLocalUser);
+    state.users.push(localUser);
   }
 
-  alert("Cuenta creada. Ahora haz login.");
-  state.ui.authView = "login";
-  saveState();
-  render();
-}
-async function logout() {
-  const { error } = await supabase.auth.signOut();
-
-  if (error) {
-    alert(error.message);
-    return;
-  }
-
-  state.sessionUserId = null;
-  state.ui.authView = "login";
+  state.sessionUserId = localUser.id;
   state.ui.appView = "home";
-  state.ui.messagesView = "inbox";
-  state.ui.activeConvoUserId = null;
-  state.ui.profileUserId = null;
-  saveState();
-  render();
-}
-
-/* -------------------------
-   APP ACTIONS
-------------------------- */
-function setAppView(view) {
-  state.ui.appView = view;
-
-  if (view !== "messages") {
-    state.ui.messagesView = "inbox";
-    state.ui.activeConvoUserId = null;
-  }
-
-  if (view === "profile" && !state.ui.profileUserId) {
-    state.ui.profileUserId = state.sessionUserId;
-  }
+  state.ui.profileUserId = localUser.id;
 
   saveState();
   render();
 }
-
-function setProfile(id) {
-  state.ui.profileUserId = id;
-  state.ui.appView = "profile";
-  saveState();
-  render();
-}
-
-function setSettingsTab(tab) {
-  state.ui.settingsTab = tab;
-  saveState();
-  render();
-}
-
-function toggleLike(postId) {
-  state.localLikes[postId] = !state.localLikes[postId];
-  saveState();
-  render();
-}
-
-function isLiked(postId) {
-  return !!state.localLikes[postId];
-}
-
-function toggleFollow(targetUserId) {
-  const me = state.sessionUserId;
-
-  const exists = state.follows.find(
-    follow =>
-      follow.followerId === me && follow.followingId === targetUserId
-  );
-
-  if (exists) {
-    state.follows = state.follows.filter(
-      follow =>
-        !(
-          follow.followerId === me && follow.followingId === targetUserId
-        )
-    );
-  } else {
-    state.follows.push({
-      followerId: me,
-      followingId: targetUserId
-    });
-  }
-
-  saveState();
-  render();
-}
-
-function updatePreference(path, value) {
-  const [group, key] = path.split(".");
-  if (!state.settings[group]) return;
-
-  state.settings[group][key] = value;
-  saveState();
-  render();
-}
-
-function subscribeToCreator(creatorId) {
-  const subscription = getSubscriptionForCreator(creatorId);
-  if (!subscription) return;
-
-  if (creatorId === state.sessionUserId) {
-    alert("You cannot subscribe to your own profile.");
-    return;
-  }
-
-  if (isSubscribedTo(creatorId)) {
-    alert("You are already subscribed.");
-    return;
-  }
-
-  if (state.wallet.available < subscription.priceMonthly) {
-    alert("Insufficient balance.");
-    return;
-  }
-
-  state.activeSubscriptions.push(creatorId);
-
-  state.wallet.available -= subscription.priceMonthly;
-
-  state.wallet.recentTransactions.unshift({
-    id: "t" + (state.wallet.recentTransactions.length + 1),
-    title: `Subscription · ${userById(creatorId)?.displayName || "Creator"}`,
-    subtitle: `Monthly access · ${subscription.tierName}`,
-    amount: subscription.priceMonthly,
-    type: "debit",
-    status: "completed",
-    createdAt: Date.now()
-  });
-
-  saveState();
-  render();
-}
-
 function unsubscribeFromCreator(creatorId) {
   if (!isSubscribedTo(creatorId)) return;
 
