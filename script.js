@@ -1,12 +1,11 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
 const supabaseUrl = "https://duyltyirtffzomrnielr.supabase.co";
-const supabaseKey = "TU_PUBLISHABLE_KEY_AQUI";
+const supabaseKey = "sb_publishable_XXXXXXXXXXXX";
 console.log("SUPABASE URL:", supabaseUrl);
 console.log("SUPABASE KEY START:", supabaseKey.slice(0, 20));
 const supabase = createClient(supabaseUrl, supabaseKey);
 const STORAGE_KEY = "earnx_master_monetization_v2";
-
 const initialUI = {
   authView: "login",
   appView: "home",
