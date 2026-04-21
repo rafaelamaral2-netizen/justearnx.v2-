@@ -1,7 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
 const supabaseUrl = "https://duyltyirtffzomrnielr.supabase.co";
-const supabaseKey = "TU_PUBLISHABLE_KEY_REAL";
+const supabaseKey = "sb_publishable_Pk6U7o0UpRuYx2eMyhFWwA_3C53R32C";
 const supabase = createClient(supabaseUrl, supabaseKey);
 const STORAGE_KEY = "earnx_master_0_2";
 
