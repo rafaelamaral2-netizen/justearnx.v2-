@@ -1360,7 +1360,6 @@ function renderCreatorCard(user) {
 function renderProfile() {
   const me = currentUser();
 
-  // 🔒 Protección: si no hay usuario
   if (!me) {
     return `
       <section class="panel">
@@ -1372,67 +1371,107 @@ function renderProfile() {
     `;
   }
 
-  // 👤 Usuario que se está viendo
-  const profile =
-    userById(state.ui.profileUserId) ||
-    state.users.find(u => u.id === state.ui.profileUserId) ||
-    me;
-
-  const isMe = profile.id === me.id;
+  const profile = userById(state.ui.profileUserId) || me;
+  const ownProfile = profile.id === me.id;
+  const posts = userPosts(profile.id) || [];
+  const followed = isFollowing(me.id, profile.id);
+  const subscription = getSubscriptionForCreator(profile.id);
+  const subscribed = isSubscribedTo(profile.id);
 
   return `
-    <section class="panel profile-panel">
-
-      <div class="profile-header">
-        <div class="profile-avatar">
-          <img src="${profile.avatarUrl || 'https://i.pravatar.cc/150'}" />
+    <section class="panel">
+      <div class="profile-cover-zone">
+        <div class="profile-cover-bg ${profile.coverUrl ? "" : "profile-cover-default"}">
+          ${
+            profile.coverUrl
+              ? `<img class="profile-cover-img" src="${escapeHtml(profile.coverUrl)}" alt="Cover" />`
+              : ""
+          }
         </div>
 
-        <h2>${profile.displayName || profile.username || "User"}</h2>
-        <p>@${profile.username || "unknown"}</p>
+        <div class="profile-avatar-anchor">
+          ${renderAvatar(profile, "avatar-xl")}
+          ${profile.verified ? `<span class="verified-checkmark">✓</span>` : ""}
+        </div>
+      </div>
 
-        <p class="profile-bio">
-          ${profile.bio || "No bio yet."}
-        </p>
+      <div class="profile-identity-block">
+        <div class="profile-name-area">
+          <div>
+            <h2 class="profile-display-name">${escapeHtml(profile.displayName || "User")}</h2>
+            <div class="handle">@${escapeHtml(profile.username || "unknown")} · ${escapeHtml(profile.country || "PR")}</div>
+          </div>
 
-        <div class="profile-actions">
+          <div class="profile-rank-col">
+            <span class="chip">Score ${scoreUser(profile)}</span>
+          </div>
+        </div>
+
+        <p class="profile-bio-text">${escapeHtml(profile.bio || "No bio yet.")}</p>
+        <div class="category-chip">${escapeHtml(profile.category || "creator")}</div>
+
+        <div class="profile-stats-bar">
+          <div class="pstat">
+            <strong>${followerCount(profile.id)}</strong>
+            <span>Followers</span>
+          </div>
+          <div class="pstat-divider"></div>
+          <div class="pstat">
+            <strong>${followingCount(profile.id)}</strong>
+            <span>Following</span>
+          </div>
+          <div class="pstat-divider"></div>
+          <div class="pstat">
+            <strong>${posts.length}</strong>
+            <span>Posts</span>
+          </div>
+        </div>
+
+        <div class="profile-action-row" style="margin-top:18px;">
           ${
-            isMe
-              ? `<button onclick="openEditProfile()">Edit profile</button>`
-              : `<button onclick="followUser('${profile.id}')">Follow</button>`
+            ownProfile
+              ? `
+                <button class="btn btn-primary">Edit profile</button>
+                <button class="btn btn-secondary" data-nav="wallet">Creator wallet</button>
+                <button class="btn btn-secondary" data-nav="settings">Settings</button>
+              `
+              : `
+                <button class="btn btn-primary" data-follow="${escapeHtml(profile.id)}">
+                  ${followed ? "Following" : "Follow"}
+                </button>
+                <button class="btn btn-secondary" data-message-user="${escapeHtml(profile.id)}">Message</button>
+              `
+          }
+        </div>
+
+        ${
+          subscription
+            ? renderSubscriptionCard(subscription, profile, subscribed)
+            : ""
+        }
+
+        <div class="profile-tabs" style="margin-top:22px;">
+          <div class="profile-tab active">Posts</div>
+          <div class="profile-tab">Media</div>
+          <div class="profile-tab">Premium</div>
+        </div>
+
+        <div class="feed-list" style="margin-top:18px;">
+          ${
+            posts.length
+              ? posts.map(renderPost).join("")
+              : `
+                <div class="profile-empty">
+                  <h3>No posts yet</h3>
+                  <p>${ownProfile ? "Start building your presence." : "This creator has not posted yet."}</p>
+                </div>
+              `
           }
         </div>
       </div>
-
-      <div class="profile-stats">
-        <div><strong>${profile.followers || 0}</strong><span>Followers</span></div>
-        <div><strong>${profile.following || 0}</strong><span>Following</span></div>
-        <div><strong>${profile.posts || 0}</strong><span>Posts</span></div>
-      </div>
-
-      <div class="profile-content">
-        <h3>Posts</h3>
-
-        ${
-          (state.posts || []).filter(p => p.userId === profile.id).length === 0
-            ? `<p class="empty">No posts yet.</p>`
-            : (state.posts || [])
-                .filter(p => p.userId === profile.id)
-                .map(
-                  p => `
-                    <div class="post-card">
-                      <p>${p.content}</p>
-                    </div>
-                  `
-                )
-                .join("")
-        }
-      </div>
-
     </section>
   `;
 }
-
 function renderSubscriptionCard(subscription, profile, subscribed) {
   return `
     <section class="subscription-card section">
