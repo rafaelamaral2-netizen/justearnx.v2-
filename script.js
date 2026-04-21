@@ -362,13 +362,11 @@ function loadState() {
    HELPERS
 ------------------------- */
 function currentUser() {
-  return state.users.find(user => user.id === state.sessionUserId) || null;
+  return state.users.find(user => user.id === state.sessionUserId) || state.users[0] || null;
 }
-
 function userById(id) {
-  return state.users.find(user => user.id === id) || null;
+  return state.users.find(u => u.id === id);
 }
-
 function getInitials(name) {
   if (!name) return "?";
   return name
@@ -511,18 +509,23 @@ async function login(identifier, password) {
   const email = identifier.trim().toLowerCase();
 
   const { data, error } = await supabase.auth.signInWithPassword({
-  email: email,
-  password: password
-});
+    email,
+    password
+  });
 
   if (error) {
     alert(error.message);
     return;
   }
 
-  state.sessionUserId = data.user.id;
+  const localUser =
+    state.users.find(user => (user.email || "").toLowerCase() === email) ||
+    state.users[0];
+
+  state.sessionUserId = localUser.id;
   state.ui.appView = "home";
-  state.ui.profileUserId = data.user.id;
+  state.ui.profileUserId = localUser.id;
+
   saveState();
   render();
 }
@@ -544,6 +547,28 @@ async function signup({ displayName, username, email, password }) {
   if (error) {
     alert(error.message);
     return;
+  }
+
+  const existingLocal = state.users.find(
+    user => (user.email || "").toLowerCase() === emailNorm
+  );
+
+  if (!existingLocal) {
+    const newLocalUser = {
+      id: "u" + (state.users.length + 1),
+      username: usernameNorm,
+      email: emailNorm,
+      password: password.trim(),
+      displayName: displayName.trim(),
+      country: "PR",
+      verified: false,
+      category: "creator",
+      bio: "New creator on EARNX.",
+      avatarUrl: "",
+      coverUrl: ""
+    };
+
+    state.users.push(newLocalUser);
   }
 
   alert("Cuenta creada. Ahora haz login.");
@@ -959,7 +984,6 @@ function renderLoginCard() {
         <a href="#" id="themeToggleLink">Theme: ${escapeHtml(state.ui.theme)}</a>
       </div>
 
-      <div class="note">Credentials: rafael@test.com / 1234</div>
     </div>
   `;
 }
@@ -999,7 +1023,6 @@ function renderSignupCard() {
         <a href="#" id="themeToggleLink">Theme: ${escapeHtml(state.ui.theme)}</a>
       </div>
 
-      <div class="note">Your account is stored locally in this browser for now.</div>
     </div>
   `;
 }
@@ -1336,96 +1359,76 @@ function renderCreatorCard(user) {
 ------------------------- */
 function renderProfile() {
   const me = currentUser();
-  const profile = userById(state.ui.profileUserId) || me;
-  const ownProfile = profile.id === me.id;
-  const posts = userPosts(profile.id);
-  const followed = isFollowing(me.id, profile.id);
-  const subscription = getSubscriptionForCreator(profile.id);
-  const subscribed = isSubscribedTo(profile.id);
+
+  // 🔒 Protección: si no hay usuario
+  if (!me) {
+    return `
+      <section class="panel">
+        <div class="profile-empty">
+          <h3>Profile unavailable</h3>
+          <p>No active user loaded yet.</p>
+        </div>
+      </section>
+    `;
+  }
+
+  // 👤 Usuario que se está viendo
+  const profile =
+    userById(state.ui.profileUserId) ||
+    state.users.find(u => u.id === state.ui.profileUserId) ||
+    me;
+
+  const isMe = profile.id === me.id;
 
   return `
-    <section class="panel">
-      <div class="profile-cover-zone">
-        <div class="profile-cover-bg ${profile.coverUrl ? "" : "profile-cover-default"}">
+    <section class="panel profile-panel">
+
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <img src="${profile.avatarUrl || 'https://i.pravatar.cc/150'}" />
+        </div>
+
+        <h2>${profile.displayName || profile.username || "User"}</h2>
+        <p>@${profile.username || "unknown"}</p>
+
+        <p class="profile-bio">
+          ${profile.bio || "No bio yet."}
+        </p>
+
+        <div class="profile-actions">
           ${
-            profile.coverUrl
-              ? `<img class="profile-cover-img" src="${escapeHtml(profile.coverUrl)}" alt="Cover" />`
-              : ""
-          }
-        </div>
-
-        <div class="profile-avatar-anchor">
-          ${renderAvatar(profile, "avatar-xl")}
-          ${profile.verified ? `<span class="verified-checkmark">✓</span>` : ""}
-        </div>
-      </div>
-
-      <div class="profile-identity-block">
-        <div class="profile-name-area">
-          <div>
-            <h2 class="profile-display-name">${escapeHtml(profile.displayName)}</h2>
-            <div class="handle">@${escapeHtml(profile.username)} · ${escapeHtml(profile.country)}</div>
-          </div>
-
-          <div class="profile-rank-col">
-            <span class="chip">Score ${scoreUser(profile)}</span>
-          </div>
-        </div>
-
-        <p class="profile-bio-text">${escapeHtml(profile.bio || "No bio yet.")}</p>
-        <div class="category-chip">${escapeHtml(profile.category)}</div>
-
-        <div class="profile-stats-bar">
-          <div class="pstat">
-            <strong>${followerCount(profile.id)}</strong>
-            <span>Followers</span>
-          </div>
-          <div class="pstat-divider"></div>
-          <div class="pstat">
-            <strong>${followingCount(profile.id)}</strong>
-            <span>Following</span>
-          </div>
-          <div class="pstat-divider"></div>
-          <div class="pstat">
-            <strong>${posts.length}</strong>
-            <span>Posts</span>
-          </div>
-        </div>
-
-        <div class="profile-action-row" style="margin-top:18px;">
-          ${
-            ownProfile
-              ? `
-                <button class="btn btn-primary">Upload avatar</button>
-                <button class="btn btn-secondary" data-nav="wallet">Creator wallet</button>
-                <button class="btn btn-secondary" data-nav="settings">Settings</button>
-              `
-              : `
-                <button class="btn btn-primary" data-follow="${escapeHtml(profile.id)}">
-                  ${followed ? "Following" : "Follow"}
-                </button>
-                <button class="btn btn-secondary" data-message-user="${escapeHtml(profile.id)}">Message</button>
-                ${renderSubscribeAction(profile.id)}
-              `
-          }
-        </div>
-
-        ${subscription ? renderSubscriptionCard(subscription, profile, subscribed) : ""}
-
-        <div class="profile-tabs" style="margin-top:22px;">
-          <div class="profile-tab active">Posts</div>
-          <div class="profile-tab">Media</div>
-          <div class="profile-tab">Premium</div>
-        </div>
-
-        <div class="feed-list" style="margin-top:18px;">
-          ${
-            posts.length
-              ? posts.map(renderPost).join("")
-              : `<div class="profile-empty"><h3>No posts yet</h3><p>${ownProfile ? "Start building your presence." : "This creator has not posted yet."}</p></div>`
+            isMe
+              ? `<button onclick="openEditProfile()">Edit profile</button>`
+              : `<button onclick="followUser('${profile.id}')">Follow</button>`
           }
         </div>
       </div>
+
+      <div class="profile-stats">
+        <div><strong>${profile.followers || 0}</strong><span>Followers</span></div>
+        <div><strong>${profile.following || 0}</strong><span>Following</span></div>
+        <div><strong>${profile.posts || 0}</strong><span>Posts</span></div>
+      </div>
+
+      <div class="profile-content">
+        <h3>Posts</h3>
+
+        ${
+          (state.posts || []).filter(p => p.userId === profile.id).length === 0
+            ? `<p class="empty">No posts yet.</p>`
+            : (state.posts || [])
+                .filter(p => p.userId === profile.id)
+                .map(
+                  p => `
+                    <div class="post-card">
+                      <p>${p.content}</p>
+                    </div>
+                  `
+                )
+                .join("")
+        }
+      </div>
+
     </section>
   `;
 }
@@ -1627,7 +1630,30 @@ function renderBubble(message) {
    WALLET UI
 ------------------------- */
 function renderWallet() {
-  const wallet = state.wallet;
+  const me = currentUser();
+
+  if (!me) {
+    return `
+      <section class="panel">
+        <div class="profile-empty">
+          <h3>Wallet unavailable</h3>
+          <p>No active user loaded yet.</p>
+        </div>
+      </section>
+    `;
+  }
+
+  const wallet = state.wallet || {
+    available: 0,
+    pending: 0,
+    reserved: 0,
+    paidOut: 0,
+    recentTransactions: []
+  };
+
+  const transactions = Array.isArray(wallet.recentTransactions)
+    ? wallet.recentTransactions
+    : [];
 
   return `
     <div class="wallet-shell">
@@ -1636,8 +1662,10 @@ function renderWallet() {
           <div>
             <div class="wallet-kicker">Wallet</div>
             <div class="wallet-balance-label">Available balance</div>
-            <h1 class="wallet-balance">${formatMoney(wallet.available)}</h1>
-            <div class="wallet-balance-sub">Premium creator earnings and payout visibility</div>
+            <h1 class="wallet-balance">${formatMoney(wallet.available || 0)}</h1>
+            <div class="wallet-balance-sub">
+              Premium creator earnings and payout visibility
+            </div>
           </div>
 
           <div class="wallet-action-row">
@@ -1650,25 +1678,25 @@ function renderWallet() {
       <section class="wallet-grid">
         <div class="wallet-card wallet-card-positive">
           <div class="wallet-card-label">Available</div>
-          <h3 class="wallet-card-value">${formatMoney(wallet.available)}</h3>
+          <h3 class="wallet-card-value">${formatMoney(wallet.available || 0)}</h3>
           <div class="wallet-card-meta">Ready to use</div>
         </div>
 
         <div class="wallet-card">
           <div class="wallet-card-label">Pending</div>
-          <h3 class="wallet-card-value">${formatMoney(wallet.pending)}</h3>
+          <h3 class="wallet-card-value">${formatMoney(wallet.pending || 0)}</h3>
           <div class="wallet-card-meta">Awaiting release</div>
         </div>
 
         <div class="wallet-card wallet-card-warning">
           <div class="wallet-card-label">Reserved</div>
-          <h3 class="wallet-card-value">${formatMoney(wallet.reserved)}</h3>
+          <h3 class="wallet-card-value">${formatMoney(wallet.reserved || 0)}</h3>
           <div class="wallet-card-meta">Protected balance</div>
         </div>
 
         <div class="wallet-card">
           <div class="wallet-card-label">Paid out</div>
-          <h3 class="wallet-card-value">${formatMoney(wallet.paidOut)}</h3>
+          <h3 class="wallet-card-value">${formatMoney(wallet.paidOut || 0)}</h3>
           <div class="wallet-card-meta">Lifetime payouts</div>
         </div>
       </section>
@@ -1683,7 +1711,17 @@ function renderWallet() {
           </div>
 
           <div class="wallet-activity-list">
-            ${wallet.recentTransactions.map(renderTransaction).join("")}
+            ${
+              transactions.length
+                ? transactions.map(renderTransaction).join("")
+                : `
+                  <div class="inbox-empty">
+                    <div class="inbox-empty-icon">💸</div>
+                    <h3>No transactions yet</h3>
+                    <p>Your wallet activity will appear here.</p>
+                  </div>
+                `
+            }
           </div>
         </div>
 
@@ -1697,32 +1735,43 @@ function renderWallet() {
 
           <div class="revenue-summary">
             <div class="revenue-pill-row">
-              <span class="revenue-pill">Monthly growth +14%</span>
-              <span class="revenue-pill">Top source subscriptions</span>
-              <span class="revenue-pill">Retention stable</span>
+              <span class="revenue-pill">Creator: ${escapeHtml(me.displayName || me.username || "User")}</span>
+              <span class="revenue-pill">Plan ready</span>
+              <span class="revenue-pill">Mock finance mode</span>
             </div>
-            <div class="revenue-visual">Creator analytics and earning visualization can live here.</div>
+
+            <div class="revenue-visual">
+              Creator analytics and earning visualization can live here.
+            </div>
           </div>
         </div>
       </section>
     </div>
   `;
 }
-
 function renderTransaction(transaction) {
+  if (!transaction) return "";
+
+  const title = transaction.title || "Transaction";
+  const subtitle = transaction.subtitle || "No details";
+  const status = transaction.status || "completed";
+  const amount = Number(transaction.amount || 0);
+  const type = transaction.type || "credit";
+  const createdAt = transaction.createdAt || Date.now();
+
   return `
     <div class="wallet-activity-row">
       <div class="wallet-activity-left">
         <div class="wallet-activity-icon">💸</div>
         <div>
-          <div class="wallet-activity-title">${escapeHtml(transaction.title)}</div>
-          <div class="wallet-activity-sub">${escapeHtml(transaction.subtitle)} · ${formatRelative(transaction.createdAt)}</div>
-          <div class="wallet-activity-status">${escapeHtml(transaction.status)}</div>
+          <div class="wallet-activity-title">${escapeHtml(title)}</div>
+          <div class="wallet-activity-sub">${escapeHtml(subtitle)} · ${formatRelative(createdAt)}</div>
+          <div class="wallet-activity-status">${escapeHtml(status)}</div>
         </div>
       </div>
 
-      <div class="wallet-activity-amount ${transaction.type === "credit" ? "positive" : transaction.type === "debit" ? "negative" : ""}">
-        ${transaction.type === "debit" ? "-" : transaction.type === "credit" ? "+" : ""}${formatMoney(transaction.amount)}
+      <div class="wallet-activity-amount ${type === "credit" ? "positive" : type === "debit" ? "negative" : ""}">
+        ${type === "debit" ? "-" : type === "credit" ? "+" : ""}${formatMoney(amount)}
       </div>
     </div>
   `;
