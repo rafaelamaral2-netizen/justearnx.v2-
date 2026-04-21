@@ -597,3 +597,771 @@ body.pink-theme .bottom-nav {
     border-radius: 24px 24px 0 0;
   }
 }
+/* =========================================================
+   EARNX — COMPONENTS
+========================================================= */
+
+.card,
+.panel,
+.post-card,
+.creator-card,
+.inbox-panel,
+.chat-panel,
+.wallet-panel,
+.settings-main,
+.settings-nav,
+.top5-card,
+.story-card,
+.subscription-card,
+.hero-home,
+.wallet-card,
+.wallet-hero {
+  background: linear-gradient(180deg, rgba(13, 17, 23, 0.98), rgba(18, 23, 31, 0.98));
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+body.light-theme .card,
+body.light-theme .panel,
+body.light-theme .post-card,
+body.light-theme .creator-card,
+body.light-theme .inbox-panel,
+body.light-theme .chat-panel,
+body.light-theme .wallet-panel,
+body.light-theme .settings-main,
+body.light-theme .settings-nav,
+body.light-theme .top5-card,
+body.light-theme .story-card,
+body.light-theme .subscription-card,
+body.light-theme .hero-home,
+body.light-theme .wallet-card,
+body.light-theme .wallet-hero {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(245, 248, 252, 0.99));
+}
+
+body.pink-theme .card,
+body.pink-theme .panel,
+body.pink-theme .post-card,
+body.pink-theme .creator-card,
+body.pink-theme .inbox-panel,
+body.pink-theme .chat-panel,
+body.pink-theme .wallet-panel,
+body.pink-theme .settings-main,
+body.pink-theme .settings-nav,
+body.pink-theme .top5-card,
+body.pink-theme .story-card,
+body.pink-theme .subscription-card,
+body.pink-theme .hero-home,
+body.pink-theme .wallet-card,
+body.pink-theme .wallet-hero {
+  background: linear-gradient(180deg, rgba(34, 17, 28, 0.98), rgba(44, 22, 34, 0.98));
+}
+
+.card,
+.panel {
+  border-radius: var(--radius-xl);
+  padding: 24px;
+}
+
+.field,
+.form-group {
+  margin-bottom: 14px;
+}
+
+.label,
+.form-label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.input,
+.search-input,
+.settings-field,
+.chat-textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: var(--bg-4);
+  color: var(--text);
+  border-radius: 16px;
+  padding: 14px 15px;
+  outline: none;
+  transition: 0.18s ease;
+}
+
+.input:focus,
+.search-input:focus,
+.settings-field:focus,
+.chat-textarea:focus {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.input::placeholder,
+.search-input::placeholder,
+.settings-field::placeholder,
+.chat-textarea::placeholder {
+  color: var(--muted);
+}
+
+.button,
+.btn,
+.reaction-btn,
+.icon-btn,
+.settings-nav-btn,
+.switch,
+.bottom-nav-btn,
+.subscribe-plan-btn,
+.tab,
+.cat-chip,
+.profile-tab {
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease,
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.button:active,
+.btn:active,
+.reaction-btn:active,
+.icon-btn:active,
+.bottom-nav-btn:active {
+  transform: scale(0.97);
+}
+
+.button,
+.btn-primary,
+.subscribe-plan-btn.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #08160c;
+  font-weight: 900;
+}
+
+body.pink-theme .button,
+body.pink-theme .btn-primary,
+body.pink-theme .subscribe-plan-btn.active {
+  color: #2b0b1a;
+}
+
+.button {
+  width: 100%;
+  margin-top: 18px;
+  padding: 15px;
+  border-radius: 18px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-weight: 800;
+}
+
+.btn-secondary,
+.reaction-btn,
+.icon-btn,
+.settings-nav-btn,
+.subscribe-plan-btn,
+.tab,
+.cat-chip,
+.profile-tab {
+  background: var(--bg-3);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+
+.btn-secondary:hover,
+.reaction-btn:hover,
+.icon-btn:hover,
+.settings-nav-btn:hover,
+.tab:hover,
+.cat-chip:hover,
+.profile-tab:hover {
+  border-color: color-mix(in srgb, var(--accent) 22%, var(--line));
+}
+
+.links {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.links a {
+  color: var(--accent);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 1.42rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.card-sub {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.94rem;
+}
+
+.chip,
+.badge,
+.category-chip,
+.convo-badge,
+.revenue-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.chip,
+.convo-badge,
+.revenue-pill,
+.category-chip,
+.badge {
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.tab.active,
+.cat-chip.active,
+.profile-tab.active,
+.badge-ambassador,
+.category-chip {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+.badge-premium {
+  background: rgba(240, 200, 93, 0.13);
+  border-color: rgba(240, 200, 93, 0.18);
+  color: var(--warning);
+}
+
+.hero-home,
+.wallet-hero {
+  border-radius: 28px;
+  padding: 22px;
+}
+
+.hero-home-copy h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  line-height: 1.12;
+  letter-spacing: -0.05em;
+  font-weight: 900;
+}
+
+.hero-home-copy p,
+.post-content {
+  margin-top: 10px;
+  line-height: 1.65;
+}
+
+.top5-card,
+.post-card,
+.creator-card,
+.subscription-card,
+.wallet-card,
+.wallet-panel,
+.inbox-panel,
+.chat-panel,
+.settings-main,
+.settings-nav {
+  border-radius: 24px;
+  padding: 18px;
+}
+
+.top5-rank {
+  display: inline-flex;
+  min-width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 18%, transparent),
+    color-mix(in srgb, var(--accent) 8%, transparent)
+  );
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  color: var(--text);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatar-md {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+}
+
+.avatar-sm {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.avatar-xs {
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  font-size: 0.72rem;
+}
+
+.avatar-xl {
+  width: 92px;
+  height: 92px;
+  border-radius: 28px;
+  font-size: 1.3rem;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.name-line h4,
+.top5-name,
+.wallet-activity-title,
+.convo-name,
+.profile-display-name,
+.account-card-title {
+  margin: 0;
+  font-weight: 900;
+}
+
+.profile-display-name {
+  font-size: 1.6rem;
+  letter-spacing: -0.04em;
+}
+
+.post-head.clickable {
+  cursor: pointer;
+}
+
+.post-content {
+  color: var(--text);
+}
+
+.post-footer {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.reaction-btn {
+  padding: 9px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.reaction-liked {
+  color: var(--danger);
+  background: rgba(255, 100, 120, 0.08);
+  border-color: rgba(255, 100, 120, 0.18);
+}
+
+.profile-cover-bg {
+  min-height: 180px;
+  border-radius: 24px 24px 0 0;
+  border-bottom: 1px solid var(--line);
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 18%, transparent), transparent 30%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
+    var(--bg-3);
+}
+
+.profile-cover-default {
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 20%, transparent), transparent 30%),
+    radial-gradient(circle at bottom right, color-mix(in srgb, var(--accent) 8%, transparent), transparent 24%),
+    var(--bg-3);
+}
+
+.profile-cover-img {
+  width: 100%;
+  min-height: 180px;
+  object-fit: cover;
+}
+
+.verified-checkmark {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #08160c;
+  font-size: 0.8rem;
+  font-weight: 900;
+  border: 2px solid var(--bg-2);
+}
+
+body.pink-theme .verified-checkmark {
+  color: #2b0b1a;
+}
+
+.pstat strong,
+.wallet-card-value,
+.wallet-balance,
+.subscribe-price {
+  display: block;
+  font-weight: 900;
+}
+
+.wallet-balance {
+  font-size: 2.2rem;
+  margin: 8px 0 0;
+}
+
+.wallet-card-value {
+  font-size: 1.35rem;
+  margin: 8px 0 0;
+}
+
+.subscribe-price {
+  font-size: 1.8rem;
+  margin-top: 10px;
+}
+
+.pstat span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.77rem;
+}
+
+.subscription-benefit {
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.subscription-benefit span {
+  color: var(--accent);
+  margin-right: 8px;
+}
+
+.inbox-empty-icon,
+.wallet-activity-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+  font-weight: 900;
+}
+
+.inbox-empty-icon {
+  margin: 0 auto 14px;
+}
+
+.inbox-head,
+.wallet-panel-head,
+.chat-topbar {
+  padding: 18px;
+  border-bottom: 1px solid var(--line);
+  margin: -18px -18px 16px;
+}
+
+.convo-row {
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.convo-row:hover,
+.convo-row.active,
+.settings-nav-btn.active,
+.bottom-nav-btn.active {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+}
+
+.convo-unread,
+.bottom-nav-badge {
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.64rem;
+  font-weight: 900;
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+}
+
+.chat-day-label {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.bubble-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.bubble-row-mine {
+  justify-content: flex-end;
+}
+
+.bubble-row-theirs {
+  justify-content: flex-start;
+}
+
+.bubble {
+  max-width: min(82%, 420px);
+  border-radius: 18px;
+  padding: 12px 14px;
+  line-height: 1.5;
+  border: 1px solid var(--line);
+}
+
+.bubble p {
+  margin: 0;
+}
+
+.bubble-mine {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.bubble-theirs {
+  background: var(--bg-3);
+}
+
+.bubble-time {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.chat-input-bar {
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.chat-send-btn {
+  min-width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #08160c;
+  font-weight: 900;
+}
+
+.wallet-card-positive {
+  border-color: color-mix(in srgb, var(--accent) 24%, var(--line));
+}
+
+.wallet-card-warning {
+  border-color: rgba(240, 200, 93, 0.24);
+}
+
+.wallet-activity-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.wallet-activity-row:last-child {
+  border-bottom: none;
+}
+
+.wallet-activity-amount {
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.wallet-activity-amount.positive {
+  color: var(--accent);
+}
+
+.wallet-activity-amount.negative {
+  color: var(--danger);
+}
+
+.revenue-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.revenue-visual {
+  min-height: 140px;
+  border-radius: 18px;
+  border: 1px dashed var(--line);
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 12%, transparent), transparent 25%),
+    var(--bg-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  text-align: center;
+  padding: 20px;
+}
+
+.settings-nav-btn {
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-weight: 800;
+}
+
+.settings-section-head h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.settings-section-head p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.settings-row-title {
+  font-weight: 800;
+}
+
+.switch {
+  width: 52px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--bg-4);
+  border: 1px solid var(--line);
+  position: relative;
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--text);
+  transition: transform 0.18s ease;
+}
+
+.switch.active {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.switch.active::after {
+  transform: translateX(20px);
+  background: var(--accent);
+}
+
+.soft-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 4px 0;
+}
+
+.account-card {
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+}
+
+.profile-empty,
+.inbox-empty {
+  padding: 32px 18px;
+  text-align: center;
+}
+
+.profile-empty h3,
+.inbox-empty h3 {
+  margin: 0 0 8px;
+  font-size: 1.08rem;
+}
+
+.profile-empty p,
+.inbox-empty p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.bottom-nav-btn {
+  min-height: 58px;
+  padding: 8px 6px;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--muted);
+  background: transparent;
+}
+
+.bottom-nav-icon-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.bottom-nav-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.bottom-nav-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+}
