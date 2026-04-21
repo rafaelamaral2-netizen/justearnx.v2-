@@ -996,3 +996,12 @@ function bindEvents() {
     };
   });
 }
+const appTest = document.getElementById("app");
+
+if (appTest) {
+  appTest.innerHTML = `
+    <div style="padding:40px; color:white; font-size:32px;">
+      TEST UI
+    </div>
+  `;
+}
