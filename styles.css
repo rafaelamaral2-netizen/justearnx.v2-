@@ -1299,7 +1299,7 @@ body.pink-theme .verified-checkmark {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1000;
+  z-index: 9999;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 6px;
@@ -1459,4 +1459,10 @@ body.pink-theme .bottom-nav {
   .top5-card {
     padding: 16px;
   }
+}
+.panel,
+.profile-cover-zone,
+.profile-identity-block {
+  position: relative;
+  z-index: 1;
 }
