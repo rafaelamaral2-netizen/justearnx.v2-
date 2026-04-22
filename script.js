@@ -1,12 +1,11 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-// 🔑 PON TUS DATOS REALES
-const SUPABASE_URL = "https://TU-PROYECTO.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+const SUPABASE_URL = "https://duyltyirtffzomrnielr.supabase.co";
+const SUPABASE_ANON_KEY = "eyJ...TU_KEY_COMPLETA...";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 console.log("SUPABASE URL:", SUPABASE_URL);
 console.log("SUPABASE KEY:", SUPABASE_ANON_KEY.slice(0, 20));
-
 // ── STATE ─────────────────────────
 const state = {
   session: null,
@@ -17,44 +16,67 @@ const state = {
 };
 
 // ── INIT ─────────────────────────
-boot();
 async function boot() {
+  applyTheme(state.theme);
+
   try {
-    applyTheme(state.theme);
-    renderLoading();
+    const app = document.getElementById("app");
+    if (app) {
+      app.innerHTML = "<div style='padding:40px;color:white'>boot running...</div>";
+    }
 
     const { data, error } = await supabase.auth.getSession();
 
     if (error) {
-      console.error(error);
-      alert("Supabase error: " + error.message);
-      return;
+      throw error;
     }
 
-    state.session = data.session;
+    state.session = data.session || null;
+
+    if (state.session) {
+      await loadProfile(state.session.user.id);
+    }
+
+    supabase.auth.onAuthStateChange(async (_event, session) => {
+      state.session = session || null;
+
+      if (session?.user) {
+        await loadProfile(session.user.id);
+      } else {
+        state.profile = null;
+      }
+
+      render();
+    });
 
     render();
-
-  } catch (e) {
-    console.error(e);
-    alert("JS CRASH: " + e.message);
+  } catch (err) {
+    console.error(err);
+    const app = document.getElementById("app");
+    if (app) {
+      app.innerHTML = `
+        <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;color:white;background:#05080d">
+          <div style="max-width:680px;background:#111722;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:24px">
+            <h2 style="margin:0 0 12px 0">JS / Supabase error</h2>
+            <pre style="white-space:pre-wrap;word-break:break-word;color:#93a0b5">${String(err.message || err)}</pre>
+          </div>
+        </div>
+      `;
+    }
   }
 }
 
-// ── THEME ─────────────────────────
-function applyTheme(t) {
-  document.body.className = t + "-theme";
-  state.theme = t;
-  localStorage.setItem("earnx-theme", t);
-}
-
 // ── PROFILE ───────────────────────
-async function loadProfile(id) {
-  const { data } = await supabase
+async function loadProfile(userId) {
+  const { data, error } = await supabase
     .from("profiles")
     .select("*")
-    .eq("id", id)
-    .single();
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error) {
+    console.warn("profile load:", error.message);
+  }
 
   state.profile = data || null;
 }
