@@ -96,32 +96,100 @@ function renderLoading() {
 }
 
 // ── AUTH UI ───────────────────────
-function renderAuth() {
+function renderAuthShell() {
   return `
-  <div class="auth-wrap">
-    <div class="auth-card">
-      <div class="auth-brand">Earn<span>X</span></div>
+    <div class="auth-wrap">
+      <div class="auth-glow"></div>
 
-      <div class="auth-tabs">
-        <div class="auth-tab ${state.authView==="login"?"active":""}" data-auth="login">Sign in</div>
-        <div class="auth-tab ${state.authView==="signup"?"active":""}" data-auth="signup">Create</div>
+      <div class="auth-card">
+        <div class="auth-brand"></div>
+
+        <div class="auth-tagline">
+          A premium social platform built around creator ambition, audience reach, and public ranking momentum.
+        </div>
+
+        <div class="auth-tabs">
+          <div class="auth-tab ${state.authView === "login" ? "active" : ""}" data-auth="login">
+            Sign in
+          </div>
+          <div class="auth-tab ${state.authView === "signup" ? "active" : ""}" data-auth="signup">
+            Create
+          </div>
+        </div>
+
+        ${
+          state.authView === "login"
+            ? renderLoginCard()
+            : renderSignupCard()
+        }
+      </div>
+    </div>
+  `;
+}
+
+function renderLoginCard() {
+  return `
+    <div id="auth-form">
+      <div class="field">
+        <label for="a-email">Email</label>
+        <input
+          id="a-email"
+          type="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+        />
       </div>
 
-      ${
-        state.authView==="login"
-        ? `
-        <input id="email" placeholder="email"/>
-        <input id="pass" type="password" placeholder="password"/>
-        <button id="btn">Login</button>
-        `
-        : `
-        <input id="email" placeholder="email"/>
-        <input id="pass" type="password" placeholder="password"/>
-        <button id="btn">Signup</button>
-        `
-      }
+      <div class="field">
+        <label for="a-pass">Password</label>
+        <input
+          id="a-pass"
+          type="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+        />
+      </div>
+
+      <button class="btn-primary" id="auth-submit">Login</button>
     </div>
-  </div>
+  `;
+}
+
+function renderSignupCard() {
+  return `
+    <div id="auth-form">
+      <div class="field">
+        <label for="a-user">Username</label>
+        <input
+          id="a-user"
+          type="text"
+          placeholder="yourhandle"
+          autocomplete="username"
+        />
+      </div>
+
+      <div class="field">
+        <label for="a-email">Email</label>
+        <input
+          id="a-email"
+          type="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+        />
+      </div>
+
+      <div class="field">
+        <label for="a-pass">Password</label>
+        <input
+          id="a-pass"
+          type="password"
+          placeholder="At least 8 characters"
+          autocomplete="new-password"
+        />
+      </div>
+
+      <button class="btn-primary" id="auth-submit">Create account</button>
+    </div>
   `;
 }
 
