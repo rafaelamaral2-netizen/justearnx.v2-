@@ -1,10 +1,11 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // 🔑 PON TUS DATOS REALES
-const SUPABASE_URL = "https://TU_URL.supabase.co";
-const SUPABASE_ANON_KEY = "TU_ANON_KEY";
-
+const SUPABASE_URL = "https://TU-PROYECTO.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+console.log("SUPABASE URL:", SUPABASE_URL);
+console.log("SUPABASE KEY:", SUPABASE_ANON_KEY.slice(0, 20));
 
 // ── STATE ─────────────────────────
 const state = {
@@ -17,29 +18,27 @@ const state = {
 
 // ── INIT ─────────────────────────
 boot();
-
 async function boot() {
-  applyTheme(state.theme);
-  renderLoading();
+  try {
+    applyTheme(state.theme);
+    renderLoading();
 
-  const { data } = await supabase.auth.getSession();
-  state.session = data.session;
+    const { data, error } = await supabase.auth.getSession();
 
-  if (state.session) {
-    await loadProfile(state.session.user.id);
-  }
-
-  supabase.auth.onAuthStateChange(async (_event, session) => {
-    state.session = session;
-    if (session) {
-      await loadProfile(session.user.id);
-    } else {
-      state.profile = null;
+    if (error) {
+      console.error(error);
+      alert("Supabase error: " + error.message);
+      return;
     }
-    render();
-  });
 
-  render();
+    state.session = data.session;
+
+    render();
+
+  } catch (e) {
+    console.error(e);
+    alert("JS CRASH: " + e.message);
+  }
 }
 
 // ── THEME ─────────────────────────
