@@ -1,296 +1,193 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-/* =========================
-   SUPABASE
-========================= */
-const supabaseUrl = "https://duyltyirtffzomrnielr.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9....";
-const supabase = createClient(supabaseUrl, supabaseKey);
+// 🔑 PON TUS DATOS REALES
+const SUPABASE_URL = "https://TU_URL.supabase.co";
+const SUPABASE_ANON_KEY = "TU_ANON_KEY";
 
-/* =========================
-   STATE
-========================= */
-const STORAGE_KEY = "earnx_master_v3";
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const initialState = {
-  sessionUser: null,
-  theme: "dark",
-  authView: "login",
+// ── STATE ─────────────────────────
+const state = {
+  session: null,
+  profile: null,
   appView: "home",
-  settingsTab: "preferences",
-  users: []
+  authView: "login",
+  theme: localStorage.getItem("earnx-theme") || "dark",
 };
 
-let state = loadState();
+// ── INIT ─────────────────────────
+boot();
 
-/* =========================
-   INIT
-========================= */
-document.addEventListener("DOMContentLoaded", async () => {
-  applyTheme();
+async function boot() {
+  applyTheme(state.theme);
+  renderLoading();
 
-  const {
-    data: { session }
-  } = await supabase.auth.getSession();
+  const { data } = await supabase.auth.getSession();
+  state.session = data.session;
 
-  if (session?.user) {
-    await syncUser(session.user);
+  if (state.session) {
+    await loadProfile(state.session.user.id);
   }
 
   supabase.auth.onAuthStateChange(async (_event, session) => {
-    if (session?.user) {
-      await syncUser(session.user);
+    state.session = session;
+    if (session) {
+      await loadProfile(session.user.id);
     } else {
-      state.sessionUser = null;
+      state.profile = null;
     }
-
-    saveState();
     render();
   });
 
   render();
-});
-
-/* =========================
-   STORAGE
-========================= */
-function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { ...initialState };
-    return { ...initialState, ...JSON.parse(raw) };
-  } catch {
-    return { ...initialState };
-  }
 }
 
-function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+// ── THEME ─────────────────────────
+function applyTheme(t) {
+  document.body.className = t + "-theme";
+  state.theme = t;
+  localStorage.setItem("earnx-theme", t);
 }
 
-/* =========================
-   THEME
-========================= */
-function applyTheme() {
-  document.body.classList.remove("dark-theme", "light-theme", "pink-theme");
-  document.body.classList.add(`${state.theme}-theme`);
-}
-
-function toggleTheme() {
-  const themes = ["dark", "light", "pink"];
-  const i = themes.indexOf(state.theme);
-  state.theme = themes[(i + 1) % themes.length];
-  saveState();
-  applyTheme();
-  render();
-}
-
-/* =========================
-   AUTH SYNC
-========================= */
-async function syncUser(user) {
-  let profile = null;
-
+// ── PROFILE ───────────────────────
+async function loadProfile(id) {
   const { data } = await supabase
     .from("profiles")
     .select("*")
-    .eq("id", user.id)
-    .maybeSingle();
+    .eq("id", id)
+    .single();
 
-  profile = data;
-
-  let local = state.users.find(u => u.id === user.id);
-
-  if (!local) {
-    local = {
-      id: user.id,
-      displayName:
-        profile?.display_name ||
-        user.user_metadata?.display_name ||
-        user.email.split("@")[0],
-      username:
-        profile?.username ||
-        user.user_metadata?.username ||
-        user.email.split("@")[0],
-      email: user.email,
-      bio: profile?.bio || "New creator on EARNX.",
-      avatarUrl: profile?.avatar_url || "",
-      verified: !!profile?.verified
-    };
-
-    state.users.push(local);
-  }
-
-  state.sessionUser = local.id;
+  state.profile = data || null;
 }
 
-/* =========================
-   AUTH ACTIONS
-========================= */
-async function login(email, password) {
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
-
-  if (error) {
-    alert(error.message);
-  }
-}
-
-async function signup({ displayName, username, email, password }) {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        display_name: displayName,
-        username
-      }
-    }
-  });
-
-  if (error) {
-    alert(error.message);
-    return;
-  }
-
-  if (data.user) {
-    await supabase.from("profiles").upsert({
-      id: data.user.id,
-      display_name: displayName,
-      username,
-      email,
-      bio: "New creator on EARNX."
-    });
-  }
-
-  alert("Account created");
-  state.authView = "login";
+// ── ROUTER ────────────────────────
+function go(view) {
+  state.appView = view;
   render();
 }
 
-async function logout() {
-  await supabase.auth.signOut();
+function goAuth(view) {
+  state.authView = view;
+  render();
 }
 
-/* =========================
-   HELPERS
-========================= */
-function currentUser() {
-  return state.users.find(u => u.id === state.sessionUser);
-}
-
-/* =========================
-   RENDER
-========================= */
+// ── RENDER ────────────────────────
 function render() {
   const app = document.getElementById("app");
-  if (!app) return;
 
-  if (!state.sessionUser) {
+  if (!state.session) {
     app.innerHTML = renderAuth();
-  } else {
-    app.innerHTML = renderApp();
+    bindAuth();
+    return;
   }
 
-  bind();
+  app.innerHTML = renderApp();
+  bindApp();
 }
 
-/* =========================
-   AUTH UI
-========================= */
-function renderAuth() {
-  return `
-  <main class="page">
-    <section class="shell">
-      <h1>EarnX</h1>
-
-      ${
-        state.authView === "login"
-          ? `
-        <form id="loginForm">
-          <input id="email" placeholder="Email"/>
-          <input id="password" type="password" placeholder="Password"/>
-          <button>Login</button>
-        </form>
-        <a id="goSignup">Create account</a>
-      `
-          : `
-        <form id="signupForm">
-          <input id="name" placeholder="Name"/>
-          <input id="user" placeholder="Username"/>
-          <input id="email" placeholder="Email"/>
-          <input id="password" type="password"/>
-          <button>Create</button>
-        </form>
-        <a id="goLogin">Back</a>
-      `
-      }
-    </section>
-  </main>
+// ── LOADING ───────────────────────
+function renderLoading() {
+  document.getElementById("app").innerHTML = `
+    <div class="loading-screen">
+      <div class="loading-brand">Earn<span>X</span></div>
+      <div class="spinner"></div>
+    </div>
   `;
 }
 
-/* =========================
-   APP UI
-========================= */
-function renderApp() {
-  const me = currentUser();
-
+// ── AUTH UI ───────────────────────
+function renderAuth() {
   return `
-  <div class="app-shell">
-    <main class="page-content">
-      <h2>Welcome ${me.displayName}</h2>
-      <p>@${me.username}</p>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-brand">Earn<span>X</span></div>
 
-      <button id="logout">Logout</button>
-      <button id="theme">Theme</button>
-    </main>
+      <div class="auth-tabs">
+        <div class="auth-tab ${state.authView==="login"?"active":""}" data-auth="login">Sign in</div>
+        <div class="auth-tab ${state.authView==="signup"?"active":""}" data-auth="signup">Create</div>
+      </div>
+
+      ${
+        state.authView==="login"
+        ? `
+        <input id="email" placeholder="email"/>
+        <input id="pass" type="password" placeholder="password"/>
+        <button id="btn">Login</button>
+        `
+        : `
+        <input id="email" placeholder="email"/>
+        <input id="pass" type="password" placeholder="password"/>
+        <button id="btn">Signup</button>
+        `
+      }
+    </div>
   </div>
   `;
 }
 
-/* =========================
-   EVENTS
-========================= */
-function bind() {
-  const loginForm = document.getElementById("loginForm");
-  if (loginForm) {
-    loginForm.onsubmit = e => {
-      e.preventDefault();
-      login(
-        document.getElementById("email").value,
-        document.getElementById("password").value
-      );
-    };
-  }
-
-  const signupForm = document.getElementById("signupForm");
-  if (signupForm) {
-    signupForm.onsubmit = e => {
-      e.preventDefault();
-      signup({
-        displayName: document.getElementById("name").value,
-        username: document.getElementById("user").value,
-        email: document.getElementById("email").value,
-        password: document.getElementById("password").value
-      });
-    };
-  }
-
-  document.getElementById("goSignup")?.addEventListener("click", e => {
-    e.preventDefault();
-    state.authView = "signup";
-    render();
+function bindAuth() {
+  document.querySelectorAll(".auth-tab").forEach(t=>{
+    t.onclick = () => goAuth(t.dataset.auth);
   });
 
-  document.getElementById("goLogin")?.addEventListener("click", e => {
-    e.preventDefault();
-    state.authView = "login";
-    render();
-  });
+  const btn = document.getElementById("btn");
+  if (!btn) return;
 
-  document.getElementById("logout")?.addEventListener("click", logout);
-  document.getElementById("theme")?.addEventListener("click", toggleTheme);
+  btn.onclick = async () => {
+    const email = document.getElementById("email").value;
+    const pass  = document.getElementById("pass").value;
+
+    if (!email || !pass) return alert("Fill fields");
+
+    if (state.authView === "login") {
+      const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+      if (error) alert(error.message);
+    } else {
+      const { error } = await supabase.auth.signUp({ email, password: pass });
+      if (error) alert(error.message);
+    }
+  };
 }
+
+// ── APP UI ────────────────────────
+function renderApp() {
+  return `
+  <div class="page">
+    <h1>EarnX</h1>
+
+    <button onclick="window.go('home')">Home</button>
+    <button onclick="window.go('profile')">Profile</button>
+    <button onclick="window.go('settings')">Settings</button>
+
+    ${
+      state.appView==="home" ? "<p>Home view</p>" :
+      state.appView==="profile" ? `<p>${state.profile?.email || "Profile"}</p>` :
+      renderSettings()
+    }
+
+    <button id="logout">Logout</button>
+  </div>
+  `;
+}
+
+function bindApp() {
+  document.getElementById("logout").onclick = async ()=>{
+    await supabase.auth.signOut();
+  };
+}
+
+// ── SETTINGS ──────────────────────
+function renderSettings() {
+  return `
+    <div>
+      <h3>Theme</h3>
+      <button onclick="setTheme('dark')">Dark</button>
+      <button onclick="setTheme('light')">Light</button>
+      <button onclick="setTheme('pink')">Pink</button>
+    </div>
+  `;
+}
+
+// ── GLOBAL HOOKS ──────────────────
+window.go = go;
+window.setTheme = applyTheme;
