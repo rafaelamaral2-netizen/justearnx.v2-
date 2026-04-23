@@ -308,27 +308,31 @@ function renderSignupCard() {
     '<div id="auth-form">' +
       '<div class="auth-form-title">Create account</div>' +
       '<div class="auth-form-subtitle">Build your identity on EarnX.</div>' +
+
       '<div class="field">' +
         '<label for="a-user">Username</label>' +
         '<input id="a-user" type="text" placeholder="yourhandle" autocomplete="username" />' +
       '</div>' +
+
       '<div class="field">' +
         '<label for="a-name">Display name</label>' +
         '<input id="a-name" type="text" placeholder="Your name" autocomplete="name" />' +
       '</div>' +
+
       '<div class="field">' +
         '<label for="a-email">Email</label>' +
         '<input id="a-email" type="email" placeholder="you@example.com" autocomplete="email" />' +
       '</div>' +
+
       '<div class="field">' +
         '<label for="a-pass">Password</label>' +
         '<input id="a-pass" type="password" placeholder="At least 8 characters" autocomplete="new-password" />' +
       '</div>' +
+
       '<button class="btn-primary" id="auth-submit">Create account</button>' +
     '</div>'
   );
 }
-
 function bindAuth() {
   document.querySelectorAll(".auth-tab").forEach(tab => {
     tab.addEventListener("click", () => {
@@ -354,11 +358,14 @@ function bindAuth() {
     try {
       if (state.authView === "login") {
         await handleLogin(email, pass);
-      } else {
-        const username = ((document.getElementById("a-user") || {}).value || "").trim();
-        const displayName = ((document.getElementById("a-name") || {}).value || "").trim();
+            } else {
+        const usernameEl = document.getElementById("a-user");
+        const displayNameEl = document.getElementById("a-name");
 
-        if (!username || !displayName) {
+        const username = usernameEl ? usernameEl.value.trim() : "";
+        const displayName = displayNameEl ? displayNameEl.value.trim() : "";
+
+        if (!username || !displayName || !email || !pass) {
           render();
           alert("Fill all fields.");
           return;
