@@ -155,8 +155,8 @@ async function hydrateSession(user) {
 }
 
 async function ensureProfile(user) {
-  const email = (user.email || "").toLowerCase();
-  const username =
+  const email = document.getElementById("email").value;
+const pass = document.getElementById("password").value;
     sanitizeUsername(user.user_metadata?.username) ||
     sanitizeUsername(email.split("@")[0]) ||
     "creator";
@@ -359,8 +359,8 @@ function bindAuth() {
       if (state.authView === "login") {
         await handleLogin(email, pass);
                   } else {
-        const usernameEl = document.getElementById("a-user");
-        const displayNameEl = document.getElementById("a-name");
+        const username = document.getElementById("username").value;
+const displayName = document.getElementById("displayName").value;
         const emailEl = document.getElementById("a-email");
         const passEl = document.getElementById("a-pass");
 
