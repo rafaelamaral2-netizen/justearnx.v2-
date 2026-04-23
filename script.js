@@ -358,20 +358,29 @@ function bindAuth() {
     try {
       if (state.authView === "login") {
         await handleLogin(email, pass);
-            } else {
+                  } else {
         const usernameEl = document.getElementById("a-user");
         const displayNameEl = document.getElementById("a-name");
+        const emailEl = document.getElementById("a-email");
+        const passEl = document.getElementById("a-pass");
 
         const username = usernameEl ? usernameEl.value.trim() : "";
         const displayName = displayNameEl ? displayNameEl.value.trim() : "";
+        const debugEmail = emailEl ? emailEl.value.trim() : "";
+        const debugPass = passEl ? passEl.value : "";
 
-        if (!username || !displayName || !email || !pass) {
+        if (!username || !displayName || !debugEmail || !debugPass) {
+          alert(
+            "username: [" + username + "]\n" +
+            "displayName: [" + displayName + "]\n" +
+            "email: [" + debugEmail + "]\n" +
+            "pass length: " + debugPass.length
+          );
           render();
-          alert("Fill all fields.");
           return;
         }
 
-        await handleSignup(email, pass, username, displayName);
+        await handleSignup(debugEmail, debugPass, username, displayName);
       }
     } catch (err) {
       showError(getErrorMessage(err));
