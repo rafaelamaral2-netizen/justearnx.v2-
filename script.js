@@ -1,122 +1,100 @@
-// ============================================================
-// EARNX — CLEAN MASTER SCRIPT (STABLE)
-// ============================================================
-
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-// 🔥 CONFIG — PEGA TU KEY REAL
 const SUPABASE_URL = "https://duyltyirtffzomrnielr.supabase.co";
-const SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1eWx0eWlydGZmem9tcm5pZWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3Mjc3NzIsImV4cCI6MjA5MjMwMzc3Mn0.sy4lobYoxzFWcni2Umc1k-IHUGRojTgmP416tDltgD8
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1eWx0eWlydGZmem9tcm5pZWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3Mjc3NzIsImV4cCI6MjA5MjMwMzc3Mn0.sy4lobYoxzFWcni2Umc1k-IHUGRojTgmP416tDltgD8";
 
 let supabase = null;
 
-try {
-  if (SUPABASE_ANON_KEY && SUPABASE_ANON_KEY.startsWith("eyJ")) {
-    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    console.log("Supabase conectado");
-  } else {
-    console.warn("Supabase key inválida");
-  }
-} catch (e) {
-  console.error("Error inicializando Supabase:", e);
-}
-
-// ── STATE ─────────────────────────────
-const state = {
-  session: null,
-  view: "auth",
-};
-
-// ── INIT ─────────────────────────────
-document.addEventListener("DOMContentLoaded", boot);
-
-async function boot() {
-  renderLoading();
-
-  if (!supabase) {
-    renderError("Missing Supabase key");
-    return;
-  }
-
-  try {
-    const { data } = await supabase.auth.getSession();
-    state.session = data.session;
-  } catch (e) {
-    console.error(e);
-  }
-
-  render();
-}
-
-// ── RENDER ───────────────────────────
-function render() {
+function setHTML(html) {
   const app = document.getElementById("app");
-
-  if (!state.session) {
-    app.innerHTML = renderAuth();
-    bindAuth();
-  } else {
-    app.innerHTML = renderApp();
-  }
+  if (app) app.innerHTML = html;
 }
 
-// ── LOADING ──────────────────────────
+function showError(msg) {
+  setHTML(`
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:#05080d;color:white;font-family:Inter,sans-serif;">
+      <div style="max-width:700px;width:100%;background:#111722;border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:24px;">
+        <h2 style="margin:0 0 12px 0;">JS error</h2>
+        <pre style="white-space:pre-wrap;word-break:break-word;color:#93a0b5;margin:0;">${msg}</pre>
+      </div>
+    </div>
+  `);
+}
+
 function renderLoading() {
-  document.getElementById("app").innerHTML = `
+  setHTML(`
     <div class="loading-screen">
       <div class="loading-brand">Earn<span>X</span></div>
       <div class="spinner"></div>
     </div>
-  `;
+  `);
 }
 
-// ── ERROR ────────────────────────────
-function renderError(msg) {
-  document.getElementById("app").innerHTML = `
-    <div class="loading-screen">
-      <div style="color:red">${msg}</div>
-    </div>
-  `;
-}
-
-// ── AUTH UI ──────────────────────────
 function renderAuth() {
-  return `
-  <div class="auth-wrap">
-    <div class="auth-card">
+  setHTML(`
+    <div class="auth-wrap">
+      <div class="auth-card">
+        <div class="auth-brand"></div>
 
-      <div class="auth-brand"></div>
-
-      <div class="auth-tagline">
-        A premium social platform built around creator ambition, audience reach, and public ranking momentum.
-      </div>
-
-      <div id="auth-form">
-        <div class="field">
-          <label>Email</label>
-          <input id="email" type="email" placeholder="you@example.com" />
+        <div class="auth-tagline">
+          A premium social platform built around creator ambition, audience reach, and public ranking momentum.
         </div>
 
-        <div class="field">
-          <label>Password</label>
-          <input id="password" type="password" placeholder="••••••••" />
+        <div class="auth-tabs">
+          <div class="auth-tab active">Sign in</div>
+          <div class="auth-tab">Create</div>
         </div>
 
-        <button id="loginBtn" class="btn-primary">Login</button>
-      </div>
+        <div id="auth-form">
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
+          </div>
 
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+          </div>
+
+          <button class="btn-primary" id="loginBtn">Login</button>
+        </div>
+      </div>
     </div>
-  </div>
-  `;
+  `);
+
+  const btn = document.getElementById("loginBtn");
+  if (btn) btn.addEventListener("click", login);
 }
 
-// ── AUTH LOGIC ───────────────────────
-function bindAuth() {
-  const btn = document.getElementById("loginBtn");
+function renderLoggedIn(email) {
+  setHTML(`
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:#05080d;color:white;font-family:Inter,sans-serif;">
+      <div style="max-width:700px;width:100%;background:#111722;border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:24px;">
+        <h2 style="margin:0 0 12px 0;">Logged in</h2>
+        <p style="margin:0 0 18px 0;color:#93a0b5;">${email || "Session active"}</p>
+        <button id="logoutBtn" class="btn-primary">Logout</button>
+      </div>
+    </div>
+  `);
 
-  btn.addEventListener("click", async () => {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+  const btn = document.getElementById("logoutBtn");
+  if (btn) {
+    btn.addEventListener("click", async function () {
+      try {
+        await supabase.auth.signOut();
+        renderAuth();
+      } catch (err) {
+        showError("Logout error: " + (err.message || String(err)));
+      }
+    });
+  }
+}
+
+async function login() {
+  try {
+    const emailEl = document.getElementById("email");
+    const passEl = document.getElementById("password");
+
+    const email = emailEl ? emailEl.value.trim() : "";
+    const password = passEl ? passEl.value : "";
 
     if (!email || !password) {
       alert("Fill all fields");
@@ -125,41 +103,52 @@ function bindAuth() {
 
     renderLoading();
 
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    const result = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
 
-      if (error) {
-        alert(error.message);
-        render();
-        return;
-      }
-
-      location.reload();
-    } catch (e) {
-      console.error(e);
-      alert("Login failed");
-      render();
+    if (result.error) {
+      renderAuth();
+      alert(result.error.message);
+      return;
     }
-  });
-}
 
-// ── APP UI ───────────────────────────
-function renderApp() {
-  return `
-    <div class="page">
-      <h1>Welcome to EarnX 🚀</h1>
-      <button id="logoutBtn">Logout</button>
-    </div>
-  `;
-}
-
-// ── LOGOUT ───────────────────────────
-document.addEventListener("click", async (e) => {
-  if (e.target.id === "logoutBtn") {
-    await supabase.auth.signOut();
-    location.reload();
+    renderLoggedIn(result.data.user?.email || email);
+  } catch (err) {
+    showError("Login error: " + (err.message || String(err)));
   }
-});
+}
+
+async function boot() {
+  try {
+    renderLoading();
+
+    const mod = await import("https://esm.sh/@supabase/supabase-js@2");
+    const createClient = mod.createClient;
+
+    if (!createClient) {
+      throw new Error("createClient not found");
+    }
+
+    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const sessionResult = await supabase.auth.getSession();
+
+    if (sessionResult.error) {
+      throw sessionResult.error;
+    }
+
+    const session = sessionResult.data.session;
+
+    if (session && session.user) {
+      renderLoggedIn(session.user.email || "Session active");
+    } else {
+      renderAuth();
+    }
+  } catch (err) {
+    showError("Boot error: " + (err.message || String(err)));
+  }
+}
+
+document.addEventListener("DOMContentLoaded", boot);
