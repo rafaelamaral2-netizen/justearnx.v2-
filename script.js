@@ -1,150 +1,153 @@
-// EARNX — RESCATE SEGURO
-// Objetivo: sacar la app del negro sin depender de Supabase
+// ================================
+// EARNX MASTER SCRIPT (STABLE REAL)
+// ================================
 
-document.addEventListener("DOMContentLoaded", function () {
-  try {
-    const app = document.getElementById("app");
-    if (!app) return;
+// 🔐 CONFIG SUPABASE
+const SUPABASE_URL = "https://duyltyirtffzomrnielr.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1eWx0eWlydGZmem9tcm5pZWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3Mjc3NzIsImV4cCI6MjA5MjMwMzc3Mn0.sy4lobYoxzFWcni2Umc1k-IHUGRojTgmP416tDltgD8";
 
-    document.body.classList.remove("light-theme", "pink-theme");
-    document.body.classList.add("dark-theme");
+let supabase = null;
 
-    app.innerHTML = `
-      <div class="auth-wrap">
-        <div class="auth-card">
-          <div class="auth-brand"></div>
-          <div class="auth-tagline">
-            A premium social platform built around creator ambition, audience reach, and public ranking momentum.
-          </div>
-          <div class="auth-copy">
-            Designed for creators who want stronger positioning, cleaner monetization, and a product that feels elevated from the first touch.
-          </div>
+// ================================
+// UI HELPERS
+// ================================
+function setHTML(html) {
+  const app = document.getElementById("app");
+  if (app) app.innerHTML = html;
+}
 
-          <div class="auth-tabs">
-            <button class="auth-tab active" id="tab-login" type="button">Sign in</button>
-            <button class="auth-tab" id="tab-signup" type="button">Create</button>
-          </div>
+function renderLoading() {
+  setHTML(`
+    <div class="loading-screen">
+      <div class="loading-brand">Earn<span>X</span></div>
+      <div class="spinner"></div>
+    </div>
+  `);
+}
 
-          <div id="auth-form"></div>
+// ================================
+// AUTH UI
+// ================================
+function renderAuth() {
+  setHTML(`
+    <div class="auth-wrap">
+      <div class="auth-card">
+
+        <div class="auth-brand"></div>
+
+        <div class="auth-tagline">
+          A premium social platform built around creator ambition, audience reach, and public ranking momentum.
         </div>
+
+        <div class="auth-tabs">
+          <div class="auth-tab active" id="tab-login">Sign in</div>
+          <div class="auth-tab" id="tab-signup">Create</div>
+        </div>
+
+        <div id="auth-form">
+          <div class="field">
+            <label>Email</label>
+            <input id="email" type="email" placeholder="you@example.com" />
+          </div>
+
+          <div class="field">
+            <label>Password</label>
+            <input id="password" type="password" placeholder="••••••••" />
+          </div>
+
+          <button class="btn-primary" id="loginBtn">Login</button>
+        </div>
+
       </div>
-    `;
+    </div>
+  `);
 
-    function renderLogin() {
-      const form = document.getElementById("auth-form");
-      if (!form) return;
+  document.getElementById("loginBtn").addEventListener("click", handleLogin);
+}
 
-      form.innerHTML = `
-        <div class="auth-form-title">Login</div>
-        <div class="auth-form-subtitle">Enter your creator account.</div>
+// ================================
+// LOGGED UI
+// ================================
+function renderHome(user) {
+  setHTML(`
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;">
+      <div style="text-align:center">
+        <h1>🔥 Bienvenido ${user.email}</h1>
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </div>
+  `);
 
-        <div class="field">
-          <label for="email">Email</label>
-          <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
-        </div>
+  document.getElementById("logoutBtn").addEventListener("click", logout);
+}
 
-        <div class="field">
-          <label for="password">Password</label>
-          <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
-        </div>
+// ================================
+// AUTH LOGIC
+// ================================
+async function handleLogin() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
 
-        <button class="btn-primary" id="login-btn" type="button">Login</button>
-      `;
-
-      const btn = document.getElementById("login-btn");
-      if (btn) {
-        btn.addEventListener("click", function () {
-          const email = document.getElementById("email")?.value.trim() || "";
-          const password = document.getElementById("password")?.value || "";
-
-          if (!email || !password) {
-            alert("Fill all fields.");
-            return;
-          }
-
-          alert("UI recuperada. El próximo paso es reconectar Supabase sobre esta base estable.");
-        });
-      }
-    }
-
-    function renderSignup() {
-      const form = document.getElementById("auth-form");
-      if (!form) return;
-
-      form.innerHTML = `
-        <div class="auth-form-title">Create account</div>
-        <div class="auth-form-subtitle">Build your identity on EarnX.</div>
-
-        <div class="field">
-          <label for="username">Username</label>
-          <input id="username" type="text" placeholder="yourhandle" autocomplete="username" />
-        </div>
-
-        <div class="field">
-          <label for="displayName">Display name</label>
-          <input id="displayName" type="text" placeholder="Your name" autocomplete="name" />
-        </div>
-
-        <div class="field">
-          <label for="email">Email</label>
-          <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
-        </div>
-
-        <div class="field">
-          <label for="password">Password</label>
-          <input id="password" type="password" placeholder="At least 8 characters" autocomplete="new-password" />
-        </div>
-
-        <button class="btn-primary" id="signup-btn" type="button">Create account</button>
-      `;
-
-      const btn = document.getElementById("signup-btn");
-      if (btn) {
-        btn.addEventListener("click", function () {
-          const username = document.getElementById("username")?.value.trim() || "";
-          const displayName = document.getElementById("displayName")?.value.trim() || "";
-          const email = document.getElementById("email")?.value.trim() || "";
-          const password = document.getElementById("password")?.value || "";
-
-          if (!username || !displayName || !email || !password) {
-            alert("Fill all fields.");
-            return;
-          }
-
-          alert("UI recuperada. El próximo paso es reconectar Supabase sobre esta base estable.");
-        });
-      }
-    }
-
-    const tabLogin = document.getElementById("tab-login");
-    const tabSignup = document.getElementById("tab-signup");
-
-    if (tabLogin && tabSignup) {
-      tabLogin.addEventListener("click", function () {
-        tabLogin.classList.add("active");
-        tabSignup.classList.remove("active");
-        renderLogin();
-      });
-
-      tabSignup.addEventListener("click", function () {
-        tabSignup.classList.add("active");
-        tabLogin.classList.remove("active");
-        renderSignup();
-      });
-    }
-
-    renderLogin();
-  } catch (err) {
-    const app = document.getElementById("app");
-    if (app) {
-      app.innerHTML = `
-        <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;color:white;">
-          <div style="max-width:720px;width:100%;background:#111722;border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:24px;">
-            <h2 style="margin:0 0 12px;">JS error</h2>
-            <pre style="white-space:pre-wrap;word-break:break-word;margin:0;color:#93a0b5;">${String(err.message || err)}</pre>
-          </div>
-        </div>
-      `;
-    }
+  if (!email || !password) {
+    alert("Fill all fields");
+    return;
   }
-});
+
+  renderLoading();
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    alert(error.message);
+    renderAuth();
+    return;
+  }
+
+  renderHome(data.user);
+}
+
+async function logout() {
+  await supabase.auth.signOut();
+  renderAuth();
+}
+
+// ================================
+// INIT APP
+// ================================
+async function initSupabase() {
+  const mod = await import("https://esm.sh/@supabase/supabase-js@2");
+  supabase = mod.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
+
+async function checkSession() {
+  const { data } = await supabase.auth.getSession();
+  return data.session;
+}
+
+// ================================
+// BOOT
+// ================================
+async function boot() {
+  try {
+    renderLoading();
+
+    await initSupabase();
+
+    const session = await checkSession();
+
+    if (session && session.user) {
+      renderHome(session.user);
+    } else {
+      renderAuth();
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("Error inicializando app");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", boot);
