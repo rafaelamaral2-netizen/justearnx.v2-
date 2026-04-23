@@ -121,15 +121,12 @@ function showError(msg) {
   );
 }
 
-function sanitizeUsername(value) {
-  return String(value || "")
-    .trim()
+function sanitizeUsername(name) {
+  return (name || "")
     .toLowerCase()
-    .replace(/\s+/g, "")
-    .replace(/[^a-z0-9._-]/g, "")
-    .slice(0, 24);
+    .replace(/[^a-z0-9_]/g, "")
+    .slice(0, 20);
 }
-
 function getInitials(name) {
   const safe = String(name || "").trim();
   if (!safe) return "?";
@@ -155,33 +152,72 @@ async function hydrateSession(user) {
 }
 
 async function ensureProfile(user) {
-  const email = document.getElementById("email").value;
-const pass = document.getElementById("password").value;
-    sanitizeUsername(user.user_metadata?.username) ||
-    sanitizeUsername(email.split("@")[0]) ||
-    "creator";
+  try {
+    // tomar datos desde metadata o fallback
+    const email = user.email || "";
+    const rawUsername =
+      user.user_metadata?.username ||
+      (email ? email.split("@")[0] : "creator");
 
-  const displayName =
-    user.user_metadata?.display_name ||
-    email.split("@")[0] ||
-    "Creator";
+    const username = sanitizeUsername(rawUsername);
+    const displayName =
+      user.user_metadata?.displayName || username;
 
-  const payload = {
-    id: user.id,
-    username,
-    display_name: displayName,
-    email,
-    bio: "No bio yet.",
-    avatar_url: "",
-    cover_url: "",
-    country: "PR",
-    category: "creator",
-    verified: false
-  };
+    // verificar si ya existe perfil
+    const { data: existing, error: fetchError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("id", user.id)
+      .single();
 
-  const result = await supabase.from("profiles").upsert(payload);
-  if (result.error) {
-    console.warn("ensureProfile:", result.error.message);
+    if (existing) return; // ya existe
+
+    // crear perfil
+    const { error } = await supabase.from("profiles").insert({
+      id: user.id,
+      username,
+      display_name: displayName,
+      created_at: new Date().toISOString()
+    });
+
+    if (error) throw error;
+
+  } catch (err) {
+    console.error("Profile error:", err);
+  }
+}async function ensureProfile(user) {
+  try {
+    // tomar datos desde metadata o fallback
+    const email = user.email || "";
+    const rawUsername =
+      user.user_metadata?.username ||
+      (email ? email.split("@")[0] : "creator");
+
+    const username = sanitizeUsername(rawUsername);
+    const displayName =
+      user.user_metadata?.displayName || username;
+
+    // verificar si ya existe perfil
+    const { data: existing, error: fetchError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("id", user.id)
+      .single();
+
+    if (existing) return; // ya existe
+
+    // crear perfil
+    const { error } = await supabase.from("profiles").insert({
+      id: user.id,
+      username,
+      display_name: displayName,
+      created_at: new Date().toISOString()
+    });
+
+    if (error) throw error;
+
+  } catch (err) {
+    console.error("Profile error:", err);
   }
 }
 
