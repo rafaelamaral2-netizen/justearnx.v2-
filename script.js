@@ -1,30 +1,22 @@
 // ========================================
-// EARNX MASTER SCRIPT (REAL FOUNDATION)
+// EARNX MASTER SCRIPT (FIXED REAL)
 // ========================================
 
-// 🔐 CONFIG
 const SUPABASE_URL = "https://duyltyirtffzomrnielr.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1eWx0eWlydGZmem9tcm5pZWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3Mjc3NzIsImV4cCI6MjA5MjMwMzc3Mn0.sy4lobYoxzFWcni2Umc1k-IHUGRojTgmP416tDltgD8";
 
 let supabase = null;
 
-// ========================================
-// GLOBAL STATE (BASE PARA TODO EL APP)
-// ========================================
 const state = {
   user: null,
-  session: null,
-  view: "auth", // auth | home
-  authMode: "login", // login | signup
-  loading: false
+  authMode: "login"
 };
 
-// ========================================
-// UI CORE
-// ========================================
+// ================================
+// CORE UI
+// ================================
 function setHTML(html) {
-  const app = document.getElementById("app");
-  if (app) app.innerHTML = html;
+  document.getElementById("app").innerHTML = html;
 }
 
 function renderLoading() {
@@ -36,9 +28,9 @@ function renderLoading() {
   `);
 }
 
-// ========================================
+// ================================
 // AUTH UI
-// ========================================
+// ================================
 function renderAuth() {
   setHTML(`
     <div class="auth-wrap">
@@ -47,43 +39,43 @@ function renderAuth() {
         <div class="auth-brand"></div>
 
         <div class="auth-tagline">
-          A premium social platform built around creator ambition, audience reach, and public ranking momentum.
+          A premium social platform built around creator ambition.
         </div>
 
         <div class="auth-tabs">
-          <div class="auth-tab ${state.authMode === "login" ? "active" : ""}" id="tab-login">Sign in</div>
-          <div class="auth-tab ${state.authMode === "signup" ? "active" : ""}" id="tab-signup">Create</div>
+          <div class="auth-tab ${state.authMode === "login" ? "active" : ""}" id="loginTab">Sign in</div>
+          <div class="auth-tab ${state.authMode === "signup" ? "active" : ""}" id="signupTab">Create</div>
         </div>
 
-        <div id="auth-form">
+        <form id="authForm">
 
           ${state.authMode === "signup" ? `
             <div class="field">
               <label>Username</label>
-              <input id="username" placeholder="rafax" />
+              <input name="username" placeholder="rafax" />
             </div>
 
             <div class="field">
               <label>Display name</label>
-              <input id="displayName" placeholder="Rafael" />
+              <input name="displayName" placeholder="Rafael" />
             </div>
           ` : ""}
 
           <div class="field">
             <label>Email</label>
-            <input id="email" type="email" placeholder="you@example.com" />
+            <input name="email" type="email" />
           </div>
 
           <div class="field">
             <label>Password</label>
-            <input id="password" type="password" placeholder="••••••••" />
+            <input name="password" type="password" />
           </div>
 
-          <button class="btn-primary" id="submitBtn">
+          <button type="submit" class="btn-primary">
             ${state.authMode === "login" ? "Login" : "Create account"}
           </button>
 
-        </div>
+        </form>
       </div>
     </div>
   `);
@@ -91,25 +83,30 @@ function renderAuth() {
   bindAuth();
 }
 
-// ========================================
-// AUTH EVENTS (AQUÍ ESTABA TU BUG)
-// ========================================
+// ================================
+// AUTH EVENTS (FIX REAL)
+// ================================
 function bindAuth() {
 
-  document.getElementById("tab-login").onclick = () => {
+  document.getElementById("loginTab").onclick = () => {
     state.authMode = "login";
     renderAuth();
   };
 
-  document.getElementById("tab-signup").onclick = () => {
+  document.getElementById("signupTab").onclick = () => {
     state.authMode = "signup";
     renderAuth();
   };
 
-  document.getElementById("submitBtn").onclick = async () => {
+  const form = document.getElementById("authForm");
 
-    const email = document.getElementById("email")?.value.trim();
-    const password = document.getElementById("password")?.value.trim();
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+
+    const email = formData.get("email")?.toString().trim();
+    const password = formData.get("password")?.toString().trim();
 
     if (!email || !password) {
       alert("Fill all fields");
@@ -119,13 +116,11 @@ function bindAuth() {
     renderLoading();
 
     try {
-
       if (state.authMode === "login") {
         await login(email, password);
       } else {
-
-        const username = document.getElementById("username")?.value.trim();
-        const displayName = document.getElementById("displayName")?.value.trim();
+        const username = formData.get("username")?.toString().trim();
+        const displayName = formData.get("displayName")?.toString().trim();
 
         if (!username || !displayName) {
           alert("Fill all fields");
@@ -135,7 +130,6 @@ function bindAuth() {
 
         await signup(email, password, username, displayName);
       }
-
     } catch (err) {
       console.error(err);
       alert("Error");
@@ -144,9 +138,9 @@ function bindAuth() {
   };
 }
 
-// ========================================
+// ================================
 // AUTH LOGIC
-// ========================================
+// ================================
 async function login(email, password) {
 
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -183,8 +177,24 @@ async function signup(email, password, username, displayName) {
     return;
   }
 
-  alert("Cuenta creada. Revisa tu email.");
+  alert("Cuenta creada");
   renderAuth();
+}
+
+// ================================
+// HOME
+// ================================
+function renderHome() {
+  setHTML(`
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;">
+      <div style="text-align:center">
+        <h1>🔥 ${state.user.email}</h1>
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </div>
+  `);
+
+  document.getElementById("logoutBtn").onclick = logout;
 }
 
 async function logout() {
@@ -193,57 +203,26 @@ async function logout() {
   renderAuth();
 }
 
-// ========================================
-// HOME (BASE PARA FUTURAS FEATURES)
-// ========================================
-function renderHome() {
-  setHTML(`
-    <div class="page">
-      <h1>🔥 Welcome ${state.user.email}</h1>
-
-      <div style="margin-top:20px;">
-        <button id="logoutBtn" class="btn-primary">Logout</button>
-      </div>
-
-      <div style="margin-top:40px;color:#93a0b5;">
-        🚧 Feed / Discover / Wallet / Messages (fase siguiente)
-      </div>
-    </div>
-  `);
-
-  document.getElementById("logoutBtn").onclick = logout;
-}
-
-// ========================================
-// INIT SUPABASE
-// ========================================
+// ================================
+// INIT
+// ================================
 async function initSupabase() {
   const mod = await import("https://esm.sh/@supabase/supabase-js@2");
   supabase = mod.createClient(SUPABASE_URL, SUPABASE_KEY);
 }
 
-// ========================================
-// BOOT
-// ========================================
 async function boot() {
-  try {
+  renderLoading();
 
-    renderLoading();
+  await initSupabase();
 
-    await initSupabase();
+  const { data } = await supabase.auth.getSession();
 
-    const { data } = await supabase.auth.getSession();
-
-    if (data.session) {
-      state.user = data.session.user;
-      renderHome();
-    } else {
-      renderAuth();
-    }
-
-  } catch (err) {
-    console.error(err);
-    alert("Error iniciando app");
+  if (data.session) {
+    state.user = data.session.user;
+    renderHome();
+  } else {
+    renderAuth();
   }
 }
 
