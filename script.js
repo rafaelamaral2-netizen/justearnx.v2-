@@ -49,33 +49,33 @@ function renderAuth() {
 
         <form id="authForm">
 
-          ${state.authMode === "signup" ? `
-            <div class="field">
-              <label>Username</label>
-              <input name="username" placeholder="rafax" />
-            </div>
+  ${state.authMode === "signup" ? `
+    <div class="field">
+      <label>Username</label>
+      <input name="username" placeholder="rafax" />
+    </div>
 
-            <div class="field">
-              <label>Display name</label>
-              <input name="displayName" placeholder="Rafael" />
-            </div>
-          ` : ""}
+    <div class="field">
+      <label>Display name</label>
+      <input name="displayName" placeholder="Rafael" />
+    </div>
+  ` : ""}
 
-          <div class="field">
-            <label>Email</label>
-            <input name="email" type="email" />
-          </div>
+  <div class="field">
+    <label>Email</label>
+    <input name="email" type="email" />
+  </div>
 
-          <div class="field">
-            <label>Password</label>
-            <input name="password" type="password" />
-          </div>
+  <div class="field">
+    <label>Password</label>
+    <input name="password" type="password" />
+  </div>
 
-          <button type="submit" class="btn-primary">
-            ${state.authMode === "login" ? "Login" : "Create account"}
-          </button>
+  <button type="submit" class="btn-primary">
+    ${state.authMode === "login" ? "Login" : "Create account"}
+  </button>
 
-        </form>
+</form>
       </div>
     </div>
   `);
