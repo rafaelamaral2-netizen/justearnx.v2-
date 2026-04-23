@@ -1,24 +1,35 @@
+// ===============================
+// EARNX — MASTER SCRIPT FASE 2
+// Auth + Profiles + Shell real
+// ===============================
+
 const SUPABASE_URL = "https://duyltyirtffzomrnielr.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1eWx0eWlydGZmem9tcm5pZWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3Mjc3NzIsImV4cCI6MjA5MjMwMzc3Mn0.sy4lobYoxzFWcni2Umc1k-IHUGRojTgmP416tDltgD8";
+const SUPABASE_ANON_KEY = "TU_KEY_AQUI";
 
 let supabase = null;
 
+// ---------- STATE ----------
+const state = {
+  session: null,
+  profile: null,
+  creators: [],
+  view: "home",
+  theme: localStorage.getItem("earnx-theme") || "dark"
+};
+
+// ---------- UTILS ----------
 function setHTML(html) {
   const app = document.getElementById("app");
   if (app) app.innerHTML = html;
 }
 
-function showError(msg) {
-  setHTML(`
-    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:#05080d;color:white;font-family:Inter,sans-serif;">
-      <div style="max-width:700px;width:100%;background:#111722;border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:24px;">
-        <h2 style="margin:0 0 12px 0;">JS error</h2>
-        <pre style="white-space:pre-wrap;word-break:break-word;color:#93a0b5;margin:0;">${msg}</pre>
-      </div>
-    </div>
-  `);
+function applyTheme(t) {
+  document.body.className = t + "-theme";
+  state.theme = t;
+  localStorage.setItem("earnx-theme", t);
 }
 
+// ---------- LOADING ----------
 function renderLoading() {
   setHTML(`
     <div class="loading-screen">
@@ -28,6 +39,7 @@ function renderLoading() {
   `);
 }
 
+// ---------- AUTH ----------
 function renderAuth() {
   setHTML(`
     <div class="auth-wrap">
@@ -39,117 +51,243 @@ function renderAuth() {
         </div>
 
         <div class="auth-tabs">
-          <div class="auth-tab active">Sign in</div>
-          <div class="auth-tab">Create</div>
+          <div class="auth-tab active" id="tabLogin">Sign in</div>
+          <div class="auth-tab" id="tabSignup">Create</div>
         </div>
 
-        <div id="auth-form">
-          <div class="field">
-            <label for="email">Email</label>
-            <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
-          </div>
-
-          <div class="field">
-            <label for="password">Password</label>
-            <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
-          </div>
-
-          <button class="btn-primary" id="loginBtn">Login</button>
-        </div>
+        <div id="auth-form"></div>
       </div>
     </div>
   `);
 
-  const btn = document.getElementById("loginBtn");
-  if (btn) btn.addEventListener("click", login);
+  showLogin();
 }
 
-function renderLoggedIn(email) {
-  setHTML(`
-    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:#05080d;color:white;font-family:Inter,sans-serif;">
-      <div style="max-width:700px;width:100%;background:#111722;border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:24px;">
-        <h2 style="margin:0 0 12px 0;">Logged in</h2>
-        <p style="margin:0 0 18px 0;color:#93a0b5;">${email || "Session active"}</p>
-        <button id="logoutBtn" class="btn-primary">Logout</button>
-      </div>
+// ---------- LOGIN / SIGNUP UI ----------
+function showLogin() {
+  document.getElementById("auth-form").innerHTML = `
+    <div class="field">
+      <label>Email</label>
+      <input id="email" type="email" placeholder="you@example.com" />
     </div>
-  `);
 
-  const btn = document.getElementById("logoutBtn");
-  if (btn) {
-    btn.addEventListener("click", async function () {
-      try {
-        await supabase.auth.signOut();
-        renderAuth();
-      } catch (err) {
-        showError("Logout error: " + (err.message || String(err)));
-      }
-    });
-  }
+    <div class="field">
+      <label>Password</label>
+      <input id="password" type="password" placeholder="••••••••" />
+    </div>
+
+    <button class="btn-primary" id="loginBtn">Login</button>
+  `;
+
+  document.getElementById("loginBtn").onclick = login;
 }
 
+function showSignup() {
+  document.getElementById("auth-form").innerHTML = `
+    <div class="field">
+      <label>Username</label>
+      <input id="username" type="text" placeholder="yourname" />
+    </div>
+
+    <div class="field">
+      <label>Email</label>
+      <input id="email" type="email" placeholder="you@example.com" />
+    </div>
+
+    <div class="field">
+      <label>Password</label>
+      <input id="password" type="password" placeholder="••••••••" />
+    </div>
+
+    <button class="btn-primary" id="signupBtn">Create account</button>
+  `;
+
+  document.getElementById("signupBtn").onclick = signup;
+}
+
+// ---------- AUTH ACTIONS ----------
 async function login() {
-  try {
-    const emailEl = document.getElementById("email");
-    const passEl = document.getElementById("password");
+  renderLoading();
 
-    const email = emailEl ? emailEl.value.trim() : "";
-    const password = passEl ? passEl.value : "";
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-    if (!email || !password) {
-      alert("Fill all fields");
-      return;
-    }
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
 
-    renderLoading();
+  if (error) {
+    alert(error.message);
+    renderAuth();
+    return;
+  }
 
-    const result = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+  state.session = data.session;
+  await loadProfile();
+  renderApp();
+}
 
-    if (result.error) {
-      renderAuth();
-      alert(result.error.message);
-      return;
-    }
+async function signup() {
+  renderLoading();
 
-    renderLoggedIn(result.data.user?.email || email);
-  } catch (err) {
-    showError("Login error: " + (err.message || String(err)));
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const username = document.getElementById("username").value;
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password
+  });
+
+  if (error) {
+    alert(error.message);
+    renderAuth();
+    return;
+  }
+
+  await supabase.from("profiles").insert({
+    id: data.user.id,
+    username: username,
+    email: email,
+    created_at: new Date().toISOString()
+  });
+
+  alert("Account created");
+  renderAuth();
+}
+
+// ---------- PROFILE ----------
+async function loadProfile() {
+  const user = state.session.user;
+
+  const { data } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  state.profile = data;
+}
+
+// ---------- DISCOVER ----------
+async function loadCreators() {
+  const { data } = await supabase
+    .from("profiles")
+    .select("id, username, display_name, avatar_url")
+    .limit(20);
+
+  state.creators = data || [];
+}
+
+// ---------- APP ----------
+function renderApp() {
+  applyTheme(state.theme);
+
+  const views = {
+    home: renderHome(),
+    discover: renderDiscover(),
+    profile: renderProfile(),
+    settings: renderSettings()
+  };
+
+  setHTML(`
+    ${views[state.view] || views.home}
+    ${renderNav()}
+  `);
+
+  bindNav();
+}
+
+// ---------- VIEWS ----------
+function renderHome() {
+  return `
+    <div class="page">
+      <h2>Welcome</h2>
+      <p>${state.profile?.username || ""}</p>
+    </div>
+  `;
+}
+
+function renderDiscover() {
+  return `
+    <div class="page">
+      <h2>Discover</h2>
+      ${state.creators.map(c => `
+        <div>${c.username}</div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderProfile() {
+  return `
+    <div class="page">
+      <h2>${state.profile?.username}</h2>
+      <p>${state.profile?.email}</p>
+    </div>
+  `;
+}
+
+function renderSettings() {
+  return `
+    <div class="page">
+      <h2>Settings</h2>
+      <button id="logoutBtn">Logout</button>
+    </div>
+  `;
+}
+
+// ---------- NAV ----------
+function renderNav() {
+  return `
+    <nav class="bottom-nav">
+      <button data-view="home">Home</button>
+      <button data-view="discover">Discover</button>
+      <button data-view="profile">Profile</button>
+      <button data-view="settings">Settings</button>
+    </nav>
+  `;
+}
+
+function bindNav() {
+  document.querySelectorAll("[data-view]").forEach(btn => {
+    btn.onclick = async () => {
+      state.view = btn.dataset.view;
+
+      if (state.view === "discover") {
+        await loadCreators();
+      }
+
+      renderApp();
+    };
+  });
+
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.onclick = async () => {
+      await supabase.auth.signOut();
+      location.reload();
+    };
   }
 }
 
+// ---------- BOOT ----------
 async function boot() {
-  try {
-    renderLoading();
+  renderLoading();
 
-    const mod = await import("https://esm.sh/@supabase/supabase-js@2");
-    const createClient = mod.createClient;
+  const mod = await import("https://esm.sh/@supabase/supabase-js@2");
+  supabase = mod.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    if (!createClient) {
-      throw new Error("createClient not found");
-    }
+  const { data } = await supabase.auth.getSession();
 
-    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    const sessionResult = await supabase.auth.getSession();
-
-    if (sessionResult.error) {
-      throw sessionResult.error;
-    }
-
-    const session = sessionResult.data.session;
-
-    if (session && session.user) {
-      renderLoggedIn(session.user.email || "Session active");
-    } else {
-      renderAuth();
-    }
-  } catch (err) {
-    showError("Boot error: " + (err.message || String(err)));
+  if (data.session) {
+    state.session = data.session;
+    await loadProfile();
+    renderApp();
+  } else {
+    renderAuth();
   }
 }
 
 document.addEventListener("DOMContentLoaded", boot);
- 
