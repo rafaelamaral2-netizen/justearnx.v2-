@@ -121,11 +121,13 @@ function showError(msg) {
   );
 }
 
-function sanitizeUsername(name) {
-  return (name || "")
+function sanitizeUsername(value) {
+  return String(value || "")
+    .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9_]/g, "")
-    .slice(0, 20);
+    .replace(/\s+/g, "")
+    .replace(/[^a-z0-9._-]/g, "")
+    .slice(0, 24);
 }
 function getInitials(name) {
   const safe = String(name || "").trim();
@@ -150,76 +152,48 @@ async function hydrateSession(user) {
   await loadProfile(user.id);
   await loadCreators();
 }
-
 async function ensureProfile(user) {
   try {
-    // tomar datos desde metadata o fallback
-    const email = user.email || "";
+    const email = user?.email || "";
     const rawUsername =
-      user.user_metadata?.username ||
+      user?.user_metadata?.username ||
       (email ? email.split("@")[0] : "creator");
 
     const username = sanitizeUsername(rawUsername);
     const displayName =
-      user.user_metadata?.displayName || username;
+      user?.user_metadata?.display_name ||
+      user?.user_metadata?.displayName ||
+      username;
 
-    // verificar si ya existe perfil
-    const { data: existing, error: fetchError } = await supabase
+    const existingResult = await supabase
       .from("profiles")
       .select("id")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
-    if (existing) return; // ya existe
+    if (existingResult.data) return;
 
-    // crear perfil
-    const { error } = await supabase.from("profiles").insert({
+    const insertResult = await supabase.from("profiles").insert({
       id: user.id,
-      username,
+      username: username,
       display_name: displayName,
-      created_at: new Date().toISOString()
+      email: email,
+      bio: "No bio yet.",
+      avatar_url: "",
+      cover_url: "",
+      country: "PR",
+      category: "creator",
+      verified: false
     });
 
-    if (error) throw error;
-
+    if (insertResult.error) {
+      console.error("ensureProfile insert:", insertResult.error.message);
+    }
   } catch (err) {
-    console.error("Profile error:", err);
-  }
-}async function ensureProfile(user) {
-  try {
-    // tomar datos desde metadata o fallback
-    const email = user.email || "";
-    const rawUsername =
-      user.user_metadata?.username ||
-      (email ? email.split("@")[0] : "creator");
-
-    const username = sanitizeUsername(rawUsername);
-    const displayName =
-      user.user_metadata?.displayName || username;
-
-    // verificar si ya existe perfil
-    const { data: existing, error: fetchError } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("id", user.id)
-      .single();
-
-    if (existing) return; // ya existe
-
-    // crear perfil
-    const { error } = await supabase.from("profiles").insert({
-      id: user.id,
-      username,
-      display_name: displayName,
-      created_at: new Date().toISOString()
-    });
-
-    if (error) throw error;
-
-  } catch (err) {
-    console.error("Profile error:", err);
+    console.error("ensureProfile error:", err);
   }
 }
+
 
 async function loadProfile(userId) {
   const result = await supabase
