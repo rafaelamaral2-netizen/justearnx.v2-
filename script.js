@@ -6,7 +6,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // 🔥 CONFIG — PEGA TU KEY REAL
 const SUPABASE_URL = "https://duyltyirtffzomrnielr.supabase.co";
-const SUPABASE_ANON_KEY = "PEGA_AQUI_TU_KEY_REAL"; // <-- IMPORTANTE
+const SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1eWx0eWlydGZmem9tcm5pZWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3Mjc3NzIsImV4cCI6MjA5MjMwMzc3Mn0.sy4lobYoxzFWcni2Umc1k-IHUGRojTgmP416tDltgD8
 
 let supabase = null;
 
