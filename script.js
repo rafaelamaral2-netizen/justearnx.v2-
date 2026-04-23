@@ -180,7 +180,21 @@ async function signup(email, password, username, displayName) {
   alert("Cuenta creada");
   renderAuth();
 }
+async function ensureProfile(user, username, displayName) {
+  const { data } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
 
+  if (data) return;
+
+  await supabase.from("profiles").insert({
+    id: user.id,
+    username,
+    display_name: displayName
+  });
+}
 // ================================
 // HOME
 // ================================
@@ -216,14 +230,24 @@ async function boot() {
 
   await initSupabase();
 
-  const { data } = await supabase.auth.getSession();
+ const { data } = await supabase.auth.getSession();
 
-  if (data.session) {
-    state.user = data.session.user;
-    renderHome();
-  } else {
-    renderAuth();
-  }
+if (data.session) {
+  const user = data.session.user;
+  state.user = user;
+
+  // 🔥 cargar perfil desde DB
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  state.profile = profile;
+
+  renderHome();
+} else {
+  renderAuth();
 }
 
 document.addEventListener("DOMContentLoaded", boot);
