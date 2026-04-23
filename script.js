@@ -274,20 +274,42 @@ function bindNav() {
 
 // ---------- BOOT ----------
 async function boot() {
-  renderLoading();
+  try {
+    renderLoading();
 
-  const mod = await import("https://esm.sh/@supabase/supabase-js@2");
-  supabase = mod.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // ⏱️ TIMEOUT DE SEGURIDAD (3s)
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Timeout loading Supabase")), 3000)
+    );
 
-  const { data } = await supabase.auth.getSession();
+    const load = import("https://esm.sh/@supabase/supabase-js@2");
 
-  if (data.session) {
-    state.session = data.session;
-    await loadProfile();
-    renderApp();
-  } else {
+    const mod = await Promise.race([load, timeout]);
+
+    supabase = mod.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    console.log("Supabase iniciado");
+
+    const { data, error } = await supabase.auth.getSession();
+
+    if (error) {
+      console.log("Session error:", error);
+      renderAuth();
+      return;
+    }
+
+    if (data.session) {
+      state.session = data.session;
+      await loadProfile();
+      renderApp();
+    } else {
+      renderAuth();
+    }
+
+  } catch (err) {
+    console.log("BOOT ERROR:", err);
+
+    // 🔥 IMPORTANTE: nunca quedarse en loading
     renderAuth();
   }
 }
-
-document.addEventListener("DOMContentLoaded", boot);
