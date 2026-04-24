@@ -520,7 +520,6 @@ function bindAuth() {
 // ================================
 function renderAppShell() {
   return `
-    ${renderTopbar()}
     ${renderCurrentView()}
     ${renderBottomNav()}
   `;
