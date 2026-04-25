@@ -1050,12 +1050,22 @@ function emptyState(title, desc) {
 
 function renderFeedCard(post) {
   const p = post.profile || {};
+  const name = p.display_name || p.username || "Creator";
+  const initials = getInitials(name);
 
   return `
-    <div class="feed-card card">
-      <div class="feed-name">${escapeHtml(p.display_name || p.username || "Creator")}</div>
-      <div class="feed-meta">${formatDate(post.created_at)}</div>
-      <div class="feed-body">${escapeHtml(post.body || "")}</div>
+    <div class="creator-card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+        <div class="avatar-btn">${initials}</div>
+        <div>
+          <div style="font-weight:900;">${escapeHtml(name)}</div>
+          <div class="muted" style="font-size:.8rem;">${formatDate(post.created_at)}</div>
+        </div>
+      </div>
+
+      <div style="font-size:1.05rem;line-height:1.6;">
+        ${escapeHtml(post.body || "")}
+      </div>
     </div>
   `;
 }
