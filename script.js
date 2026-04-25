@@ -1087,13 +1087,20 @@ function renderCreatorCard(c) {
 
 function renderMarketRow(c) {
   const m = c.metrics || creatorMetrics(c);
+  const up = m.score > 100;
 
   return `
-    <div class="feed-card card">
-      <div class="feed-name">${escapeHtml(c.display_name || c.username || "Creator")}</div>
-      <div class="feed-meta">@${escapeHtml(c.username || "creator")}</div>
-      <div class="feed-body">
-        Followers: ${m.followers} · Posts: ${m.posts} · Score: ${m.score.toFixed(0)}
+    <div class="market-row">
+      <div>
+        <div class="market-name">${escapeHtml(c.display_name || c.username)}</div>
+        <div class="market-symbol">@${escapeHtml(c.username)}</div>
+      </div>
+
+      <div class="market-num">${m.followers}</div>
+      <div class="market-num">${m.posts}</div>
+
+      <div class="market-num ${up ? "market-up" : ""}">
+        ${up ? "▲" : "▼"} ${m.score.toFixed(0)}
       </div>
     </div>
   `;
