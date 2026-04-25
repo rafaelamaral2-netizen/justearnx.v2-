@@ -36,7 +36,12 @@ async function boot() {
     supabase = mod.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const { data, error } = await supabase.auth.getSession();
-    if (error) throw error;
+
+    if (error) {
+      console.error(error);
+      renderAuth(); // 👈 fallback inmediato
+      return;
+    }
 
     state.session = data.session || null;
     state.user = state.session ? state.session.user : null;
@@ -59,12 +64,16 @@ async function boot() {
     });
 
     render();
+
   } catch (err) {
     console.error(err);
-    renderFatal(err);
+
+    // 👇 CLAVE: nunca más pantalla infinita
+    setTimeout(() => {
+      renderAuth();
+    }, 800);
   }
 }
-
 function resetState() {
   state.session = null;
   state.user = null;
