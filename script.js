@@ -303,7 +303,9 @@ function render() {
   setHTML(renderAppShell());
   bindApp();
 }
-
+setTimeout(() => {
+  document.body.style.opacity = "1";
+}, 50);
 function renderLoading() {
   setHTML(`
     <div class="loading-screen">
