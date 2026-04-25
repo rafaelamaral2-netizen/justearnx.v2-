@@ -635,13 +635,16 @@ function renderHome() {
 
   return `
     <main class="page">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Good ${timeOfDay()}</div>
-          <div class="page-subtitle">${escapeHtml(p.display_name || p.username || state.user.email)}</div>
-        </div>
-        <button class="btn-secondary" data-go="discover" type="button">Discover</button>
-      </div>
+     <div class="home-top">
+  <div>
+    <div class="home-greeting">Good ${timeOfDay()}</div>
+    <div class="home-name">
+      ${escapeHtml(p.display_name || p.username || state.user.email)}
+    </div>
+  </div>
+
+  <button class="btn-secondary" data-go="discover" type="button">Explore</button>
+</div>
 
       <div class="stats-row">
         ${statCard("$" + safeNum(p.earnings_total).toFixed(0), "Earnings")}
