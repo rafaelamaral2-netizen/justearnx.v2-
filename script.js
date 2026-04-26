@@ -421,12 +421,12 @@ function renderSignupCard() {
 }
 
 function bindAuth() {
-  document.querySelectorAll("[data-auth]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      state.authView = btn.dataset.auth;
-      render();
-    });
-  });
+ document.querySelectorAll("[data-auth]").forEach(btn => {
+  btn.onclick = () => {
+    state.authView = btn.dataset.auth;
+    setTimeout(() => render(), 0);
+  };
+});
 
   const forgotBtn = document.getElementById("forgotBtn");
   if (forgotBtn) {
