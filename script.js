@@ -621,13 +621,11 @@ function renderBottomNav() {
 }
 
 function bindApp() {
-  document.querySelectorAll("[data-go]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      state.appView = btn.dataset.go;
-      render();
-    });
+ document.querySelectorAll("[data-follow]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    toggleFollow(btn.dataset.follow);
   });
-
+});
   const themeBtn = document.getElementById("themeCycleBtn");
   if (themeBtn) themeBtn.addEventListener("click", cycleTheme);
 
