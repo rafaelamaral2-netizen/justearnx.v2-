@@ -1147,3 +1147,30 @@ function renderAvatarButton(profile) {
   const initials = getInitials(profile?.display_name || profile?.username || state.user?.email || "U");
   return `<button class="avatar-btn" data-go="profile" type="button">${escapeHtml(initials)}</button>`;
 }
+async function toggleFollow(userId) {
+  const me = state.user.id;
+
+  const { data: existing } = await supabase
+    .from("follows")
+    .select("*")
+    .eq("follower_id", me)
+    .eq("following_id", userId)
+    .maybeSingle();
+
+  if (existing) {
+    await supabase
+      .from("follows")
+      .delete()
+      .eq("id", existing.id);
+  } else {
+    await supabase
+      .from("follows")
+      .insert({
+        follower_id: me,
+        following_id: userId
+      });
+  }
+
+  await loadCreators();
+  render();
+}
