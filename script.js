@@ -94,7 +94,8 @@ async function hydrateApp() {
     loadCreators(),
     loadPosts(),
     loadMessages(),
-    loadWallet()
+    loadWallet(),
+    loadFollowing()
   ]);
 }
 
