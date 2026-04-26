@@ -16,6 +16,7 @@ const state = {
   posts: [],
   messages: [],
   walletTx: [],
+  followingIds: [],
   authView: "login",
   appView: "home",
   theme: localStorage.getItem("earnx-theme") || "dark",
