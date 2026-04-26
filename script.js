@@ -449,96 +449,105 @@ function bindAuth() {
 
   const form = document.getElementById("authForm");
   if (!form) return;
+form.addEventListener("submit", async e => {
+  e.preventDefault();
 
-  form.addEventListener("submit", async e => {
-    e.preventDefault();
+  const fd = new FormData(form);
+  const email = (fd.get("email") || "").toString().trim();
+  const password = (fd.get("password") || "").toString();
 
-    const fd = new FormData(form);
-    const email = (fd.get("email") || "").toString().trim();
-    const password = (fd.get("password") || "").toString();
+  if (!email || !password) {
+    alert("Fill all fields");
+    return;
+  }
 
-    if (!email || !password) {
-      alert("Fill all fields");
+  renderLoading();
+
+  try {
+    if (state.authView === "login") {
+
+      const result = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (result.error) {
+        alert(result.error.message);
+        render();
+        return;
+      }
+
+      state.session = result.data.session;
+      state.user = result.data.user;
+
+      await hydrateApp();
+      render();
+      return;
+
+    } else {
+
+      const username = (fd.get("username") || "").toString().trim();
+      const displayName = (fd.get("displayName") || "").toString().trim();
+
+      if (!username || !displayName) {
+        alert("Fill all fields");
+        render();
+        return;
+      }
+
+      const result = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            username: sanitizeUsername(username),
+            display_name: displayName
+          }
+        }
+      });
+
+      if (result.error) {
+        alert(result.error.message);
+        render();
+        return;
+      }
+
+      // 🔥 Si Supabase devuelve sesión directa
+      if (result.data.session && result.data.user) {
+        state.session = result.data.session;
+        state.user = result.data.user;
+
+        await hydrateApp();
+        render();
+        return;
+      }
+
+      // 🔥 Si NO devuelve sesión → login manual
+      const login = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (login.error) {
+        state.authView = "login";
+        alert("Account created. Now sign in.");
+        render();
+        return;
+      }
+
+      state.session = login.data.session;
+      state.user = login.data.user;
+
+      await hydrateApp();
+      render();
       return;
     }
 
-    renderLoading();
-
-    try {
-      if (state.authView === "login") {
-        const result = await supabase.auth.signInWithPassword({ email, password });
-
-        if (result.error) {
-          alert(result.error.message);
-          render();
-          return;
-        }
-
-        state.session = result.data.session;
-        state.user = result.data.user;
-        await hydrateApp();
-        render();
-      } else {
-        const username = (fd.get("username") || "").toString().trim();
-        const displayName = (fd.get("displayName") || "").toString().trim();
-
-        if (!username || !displayName) {
-          alert("Fill all fields");
-          render();
-          return;
-        }
-
-   const result = await supabase.auth.signUp({
-  email,
-  password,
-  options: {
-    data: {
-      username: sanitizeUsername(username),
-      display_name: displayName
-    }
+  } catch (err) {
+    alert(err.message || String(err));
+    render();
   }
 });
-
-if (result.error) {
-  alert(result.error.message);
-  render();
-  return;
-}
-
-/* Si Supabase devuelve sesión inmediata */
-if (result.data.session && result.data.user) {
-  state.session = result.data.session;
-  state.user = result.data.user;
-  await hydrateApp();
-  render();
-  return;
-}
-
-/* Si no devuelve sesión, forzamos login */
-const login = await supabase.auth.signInWithPassword({
-  email,
-  password
-});
-
-if (login.error) {
-  state.authView = "login";
-  alert("Account created. Sign in now.");
-  render();
-  return;
-}
-
-state.session = login.data.session;
-state.user = login.data.user;
-
-await hydrateApp();
-render();
-return;
-    } catch (err) {
-      alert(err.message || String(err));
-      render();
-    }
-  });
-}
 
 // ================================
 // APP SHELL
