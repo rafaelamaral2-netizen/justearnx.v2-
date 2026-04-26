@@ -423,11 +423,10 @@ function renderSignupCard() {
 }
 
 function bindAuth() {
- document.querySelectorAll("[data-auth]").forEach(btn => {
-  btn.onclick = () => {
-    state.authView = btn.dataset.auth;
-    setTimeout(() => render(), 0);
-  };
+ document.querySelectorAll("[data-follow]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    toggleFollow(btn.dataset.follow);
+  });
 });
 
   const forgotBtn = document.getElementById("forgotBtn");
