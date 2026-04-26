@@ -996,10 +996,47 @@ async function recordWalletTransaction(type) {
     alert(profileUpdate.error.message);
     return;
   }
+await Promise.all([loadProfile(), loadWallet()]);
+render();
+}
 
-  await Promise.all([loadProfile(), loadWallet()]);
+async function toggleFollow(userId) {
+  if (!state.user || !userId || userId === state.user.id) return;
+
+  const isFollowing = state.followingIds.includes(userId);
+
+  if (isFollowing) {
+    const result = await supabase
+      .from("follows")
+      .delete()
+      .eq("follower_id", state.user.id)
+      .eq("following_id", userId);
+
+    if (result.error) {
+      alert(result.error.message);
+      return;
+    }
+  } else {
+    const result = await supabase
+      .from("follows")
+      .insert({
+        follower_id: state.user.id,
+        following_id: userId
+      });
+
+    if (result.error) {
+      alert(result.error.message);
+      return;
+    }
+  }
+
+  await loadFollowing();
   render();
 }
+
+// ================================
+// COMPONENTS
+// ================================
 
 // ================================
 // COMPONENTS
