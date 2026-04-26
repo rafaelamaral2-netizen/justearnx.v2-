@@ -347,23 +347,28 @@ function renderAuthShell() {
       <div class="auth-card">
 
         <div>
-          <div class="auth-title">EarnX</div>
-          <p class="auth-copy">
-            A premium creator platform with rankings, monetization, messaging and public momentum.
-          </p>
+          <div class="auth-brand"></div>
+          <div class="auth-tagline">
+            A premium social platform built around creator ambition, audience reach, and public ranking momentum.
+          </div>
+          <div class="auth-copy">
+            A creator economy platform with rankings, monetization, messaging and public momentum.
+          </div>
         </div>
 
-        <div class="auth-tabs">
-          <button class="auth-tab ${state.authView === "login" ? "active" : ""}" data-auth="login">
-            Sign in
-          </button>
-          <button class="auth-tab ${state.authView === "signup" ? "active" : ""}" data-auth="signup">
-            Create
-          </button>
-        </div>
+        <div>
+          <div class="auth-tabs">
+            <button class="auth-tab ${state.authView === "login" ? "active" : ""}" data-auth="login" type="button">
+              Sign in
+            </button>
+            <button class="auth-tab ${state.authView === "signup" ? "active" : ""}" data-auth="signup" type="button">
+              Create
+            </button>
+          </div>
 
-        <div id="auth-form">
-          ${state.authView === "login" ? renderLoginCard() : renderSignupCard()}
+          <div id="auth-form">
+            ${state.authView === "login" ? renderLoginCard() : renderSignupCard()}
+          </div>
         </div>
 
       </div>
