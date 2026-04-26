@@ -431,15 +431,16 @@ function renderSignupCard() {
 }
 
 function bindAuth() {
- document.querySelectorAll("[data-follow]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    toggleFollow(btn.dataset.follow);
+  document.querySelectorAll("[data-auth]").forEach(btn => {
+    btn.onclick = () => {
+      state.authView = btn.dataset.auth;
+      render();
+    };
   });
-});
 
   const forgotBtn = document.getElementById("forgotBtn");
   if (forgotBtn) {
-    forgotBtn.addEventListener("click", async () => {
+    forgotBtn.onclick = async () => {
       const form = document.getElementById("authForm");
       const fd = new FormData(form);
       const email = (fd.get("email") || "").toString().trim();
@@ -452,47 +453,42 @@ function bindAuth() {
       const result = await supabase.auth.resetPasswordForEmail(email);
       if (result.error) alert(result.error.message);
       else alert("Reset email sent.");
-    });
+    };
   }
 
   const form = document.getElementById("authForm");
   if (!form) return;
-form.addEventListener("submit", async e => {
-  e.preventDefault();
 
-  const fd = new FormData(form);
-  const email = (fd.get("email") || "").toString().trim();
-  const password = (fd.get("password") || "").toString();
+  form.onsubmit = async e => {
+    e.preventDefault();
 
-  if (!email || !password) {
-    alert("Fill all fields");
-    return;
-  }
+    const fd = new FormData(form);
+    const email = (fd.get("email") || "").toString().trim();
+    const password = (fd.get("password") || "").toString();
 
-  renderLoading();
+    if (!email || !password) {
+      alert("Fill all fields");
+      return;
+    }
 
-  try {
-    if (state.authView === "login") {
+    renderLoading();
 
-      const result = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+    try {
+      if (state.authView === "login") {
+        const result = await supabase.auth.signInWithPassword({ email, password });
 
-      if (result.error) {
-        alert(result.error.message);
+        if (result.error) {
+          alert(result.error.message);
+          render();
+          return;
+        }
+
+        state.session = result.data.session;
+        state.user = result.data.user;
+        await hydrateApp();
         render();
         return;
       }
-
-      state.session = result.data.session;
-      state.user = result.data.user;
-
-      await hydrateApp();
-      render();
-      return;
-
-    } else {
 
       const username = (fd.get("username") || "").toString().trim();
       const displayName = (fd.get("displayName") || "").toString().trim();
@@ -520,42 +516,17 @@ form.addEventListener("submit", async e => {
         return;
       }
 
-      // 🔥 Si Supabase devuelve sesión directa
-      if (result.data.session && result.data.user) {
-        state.session = result.data.session;
-        state.user = result.data.user;
-
-        await hydrateApp();
-        render();
-        return;
-      }
-
-      // 🔥 Si NO devuelve sesión → login manual
-      const login = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (login.error) {
-        state.authView = "login";
-        alert("Account created. Now sign in.");
-        render();
-        return;
-      }
-
-      state.session = login.data.session;
-      state.user = login.data.user;
-
-      await hydrateApp();
+      state.authView = "login";
+      alert("Account created. Sign in now.");
       render();
       return;
-    }
 
-  } catch (err) {
-    alert(err.message || String(err));
-    render();
-  }
-});
+    } catch (err) {
+      alert(err.message || String(err));
+      render();
+    }
+  };
+}
 
 // ================================
 // APP SHELL
