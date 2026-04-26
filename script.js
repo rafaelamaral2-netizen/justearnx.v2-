@@ -488,35 +488,25 @@ function bindAuth() {
           return;
         }
 
-        const result = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              username: sanitizeUsername(username),
-              display_name: displayName
-            }
-          }
-        });
+   const result = await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    data: {
+      username: sanitizeUsername(username),
+      display_name: displayName
+    }
+  }
+});
 
-        if (result.error) {
-          alert(result.error.message);
-          render();
-          return;
-        }
+if (result.error) {
+  alert(result.error.message);
+  render();
+  return;
+}
 
-        if (result.data.user) {
-          await ensureProfile({
-            ...result.data.user,
-            user_metadata: {
-              ...(result.data.user.user_metadata || {}),
-              username: sanitizeUsername(username),
-              display_name: displayName
-            }
-          });
-        }
-
-      if (result.data.session && result.data.user) {
+/* Si Supabase devuelve sesión inmediata */
+if (result.data.session && result.data.user) {
   state.session = result.data.session;
   state.user = result.data.user;
   await hydrateApp();
@@ -524,10 +514,25 @@ function bindAuth() {
   return;
 }
 
-state.authView = "login";
-alert("Account created. Check your email or sign in now.");
+/* Si no devuelve sesión, forzamos login */
+const login = await supabase.auth.signInWithPassword({
+  email,
+  password
+});
+
+if (login.error) {
+  state.authView = "login";
+  alert("Account created. Sign in now.");
+  render();
+  return;
+}
+
+state.session = login.data.session;
+state.user = login.data.user;
+
+await hydrateApp();
 render();
-      }
+return;
     } catch (err) {
       alert(err.message || String(err));
       render();
