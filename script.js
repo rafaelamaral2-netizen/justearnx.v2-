@@ -516,9 +516,17 @@ function bindAuth() {
           });
         }
 
-        state.authView = "login";
-        alert("Account created. Sign in now.");
-        render();
+      if (result.data.session && result.data.user) {
+  state.session = result.data.session;
+  state.user = result.data.user;
+  await hydrateApp();
+  render();
+  return;
+}
+
+state.authView = "login";
+alert("Account created. Check your email or sign in now.");
+render();
       }
     } catch (err) {
       alert(err.message || String(err));
