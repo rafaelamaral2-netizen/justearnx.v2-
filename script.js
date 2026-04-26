@@ -1088,15 +1088,17 @@ function renderFeedCard(post) {
 
 function renderCreatorCard(c) {
   const initials = getInitials(c.display_name || c.username || "U");
-  const m = creatorMetrics(c);
 
   return `
     <div class="creator-card">
       <div class="creator-avatar">${escapeHtml(initials)}</div>
-      <div class="creator-name">${escapeHtml(c.display_name || c.username || "Creator")}</div>
-      <div class="creator-handle">@${escapeHtml(c.username || "creator")}</div>
-      <div class="creator-bio">${escapeHtml(c.bio || "No bio yet.")}</div>
-      <div class="pill">Score ${m.score.toFixed(0)}</div>
+      <div class="creator-name">${escapeHtml(c.display_name)}</div>
+      <div class="creator-handle">@${escapeHtml(c.username)}</div>
+      <div class="creator-bio">${escapeHtml(c.bio || "")}</div>
+
+      <button class="btn-primary follow-btn" data-follow="${c.id}">
+        Follow
+      </button>
     </div>
   `;
 }
