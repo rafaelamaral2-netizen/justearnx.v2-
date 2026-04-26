@@ -1117,16 +1117,19 @@ function renderFeedCard(post) {
 
 function renderCreatorCard(c) {
   const initials = getInitials(c.display_name || c.username || "U");
+  const m = creatorMetrics(c);
+  const isFollowing = state.followingIds.includes(c.id);
 
   return `
     <div class="creator-card">
-      <div class="creator-avatar">${escapeHtml(initials)}</div>
-      <div class="creator-name">${escapeHtml(c.display_name)}</div>
-      <div class="creator-handle">@${escapeHtml(c.username)}</div>
-      <div class="creator-bio">${escapeHtml(c.bio || "")}</div>
+      <div class="creator-avatar-lg">${escapeHtml(initials)}</div>
+      <div class="creator-name">${escapeHtml(c.display_name || c.username || "Creator")}</div>
+      <div class="creator-handle">@${escapeHtml(c.username || "creator")}</div>
+      <div class="creator-bio">${escapeHtml(c.bio || "No bio yet.")}</div>
+      <div class="chip">Score ${m.score.toFixed(0)}</div>
 
-      <button class="btn-primary follow-btn" data-follow="${c.id}">
-        Follow
+      <button class="btn-primary" data-follow="${c.id}" type="button">
+        ${isFollowing ? "Following" : "Follow"}
       </button>
     </div>
   `;
