@@ -83,6 +83,7 @@ function resetState() {
   state.posts = [];
   state.messages = [];
   state.walletTx = [];
+  state.followingIds = [];
   state.authView = "login";
   state.appView = "home";
 }
