@@ -263,7 +263,9 @@ async function loadPosts() {
       .order("created_at", { ascending: false })
       .limit(30);
 
-    state.posts = result.error ? [] : (Array.isArray(result.data) ? result.data : []);
+    state.posts = result.error
+      ? []
+      : (Array.isArray(result.data) ? result.data : []);
   } catch {
     state.posts = [];
   }
