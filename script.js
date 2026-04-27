@@ -301,7 +301,22 @@ async function loadWallet() {
     state.walletTx = [];
   }
 }
+async function loadFollowing() {
+  if (!state.user) return;
 
+  try {
+    const result = await supabase
+      .from("follows")
+      .select("following_id")
+      .eq("follower_id", state.user.id);
+
+    state.followingIds = result.error
+      ? []
+      : result.data.map(row => row.following_id);
+  } catch {
+    state.followingIds = [];
+  }
+}
 // ================================
 // RENDER CORE
 // ================================
