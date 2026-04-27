@@ -605,51 +605,76 @@ function renderBottomNav() {
     </nav>
   `;
 }
-
 function bindApp() {
- document.querySelectorAll("[data-follow]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    toggleFollow(btn.dataset.follow);
-  });
-});
-  const themeBtn = document.getElementById("themeCycleBtn");
-  if (themeBtn) themeBtn.addEventListener("click", cycleTheme);
-
-  document.querySelectorAll("[data-theme]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      applyTheme(btn.dataset.theme);
+  document.body.onclick = async function (e) {
+    const goBtn = e.target.closest("[data-go]");
+    if (goBtn) {
+      state.appView = goBtn.dataset.go;
       render();
-    });
-  });
+      return;
+    }
+
+    const themeBtn = e.target.closest("[data-theme]");
+    if (themeBtn) {
+      applyTheme(themeBtn.dataset.theme);
+      render();
+      return;
+    }
+
+    const followBtn = e.target.closest("[data-follow]");
+    if (followBtn) {
+      await toggleFollow(followBtn.dataset.follow);
+      return;
+    }
+
+    if (e.target.closest("#themeCycleBtn")) {
+      cycleTheme();
+      return;
+    }
+
+    if (e.target.closest("#saveProfileBtn")) {
+      await saveProfileSettings();
+      return;
+    }
+
+    if (e.target.closest("#logoutBtn")) {
+      await logout();
+      return;
+    }
+
+    if (e.target.closest("#resetPasswordBtn")) {
+      await resetPassword();
+      return;
+    }
+
+    if (e.target.closest("#publishPostBtn")) {
+      await publishPost();
+      return;
+    }
+
+    if (e.target.closest("#sendMessageBtn")) {
+      await sendMessage();
+      return;
+    }
+
+    if (e.target.closest("#depositBtn")) {
+      await recordWalletTransaction("deposit");
+      return;
+    }
+
+    if (e.target.closest("#withdrawBtn")) {
+      await recordWalletTransaction("withdrawal");
+      return;
+    }
+  };
 
   const search = document.getElementById("discoverSearch");
   if (search) {
-    search.addEventListener("input", e => {
+    search.oninput = e => {
       state.discoverQuery = e.target.value || "";
       render();
-    });
+    };
   }
-
-  const saveProfileBtn = document.getElementById("saveProfileBtn");
-  if (saveProfileBtn) saveProfileBtn.addEventListener("click", saveProfileSettings);
-
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) logoutBtn.addEventListener("click", logout);
-
-  const resetPasswordBtn = document.getElementById("resetPasswordBtn");
-  if (resetPasswordBtn) resetPasswordBtn.addEventListener("click", resetPassword);
-
-  const publishPostBtn = document.getElementById("publishPostBtn");
-  if (publishPostBtn) publishPostBtn.addEventListener("click", publishPost);
-
-  const sendMessageBtn = document.getElementById("sendMessageBtn");
-  if (sendMessageBtn) sendMessageBtn.addEventListener("click", sendMessage);
-
-  const depositBtn = document.getElementById("depositBtn");
-  if (depositBtn) depositBtn.addEventListener("click", () => recordWalletTransaction("deposit"));
-
-  const withdrawBtn = document.getElementById("withdrawBtn");
-  if (withdrawBtn) withdrawBtn.addEventListener("click", () => recordWalletTransaction("withdrawal"));
 }
 
 // ================================
