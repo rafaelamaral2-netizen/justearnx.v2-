@@ -285,6 +285,30 @@ async function loadMessages() {
     state.messages = [];
   }
 }
+}
+async function loadPosts() {
+  if (!state.user) return;
+
+  try {
+    const following = Array.isArray(state.followingIds) ? state.followingIds : [];
+    const allowedUsers = [state.user.id, ...following];
+
+    const result = await supabase
+      .from("posts")
+      .select("*")
+      .in("user_id", allowedUsers)
+      .order("created_at", { ascending: false })
+      .limit(30);
+
+    state.posts = result.error
+      ? []
+      : (Array.isArray(result.data) ? result.data : []);
+
+  } catch (err) {
+    console.error("loadPosts error:", err);
+    state.posts = [];
+  }
+}
 
 async function loadWallet() {
   if (!state.user) return;
