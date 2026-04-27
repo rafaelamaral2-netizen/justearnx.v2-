@@ -254,21 +254,21 @@ async function loadCreators() {
   }
 }
 
-const following = state.followingIds || [];
+async function loadPosts() {
+  if (!state.user) return;
 
-const result = await supabase
-  .from("posts")
-  .select("*")
-  .in("user_id", [...following, state.user.id])
-  .order("created_at", { ascending: false })
-  .limit(30);
+  try {
+    const result = await supabase
+      .from("posts")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(30);
 
     state.posts = result.error ? [] : (Array.isArray(result.data) ? result.data : []);
   } catch {
     state.posts = [];
   }
 }
-
 async function loadMessages() {
   if (!state.user) return;
 
