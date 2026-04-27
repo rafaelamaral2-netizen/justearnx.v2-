@@ -253,23 +253,22 @@ async function loadCreators() {
     state.creators = [];
   }
 }
-async function loadPosts() {
-  if (!state.user) return;
 
-  try {
-    const result = await supabase
-      .from("posts")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(30);
+const following = state.followingIds || [];
 
-    state.posts = result.error
-      ? []
-      : (Array.isArray(result.data) ? result.data : []);
+const result = await supabase
+  .from("posts")
+  .select("*")
+  .in("user_id", [...following, state.user.id])
+  .order("created_at", { ascending: false })
+  .limit(30);
+
+    state.posts = result.error ? [] : (Array.isArray(result.data) ? result.data : []);
   } catch {
     state.posts = [];
   }
 }
+
 async function loadMessages() {
   if (!state.user) return;
 
@@ -284,30 +283,6 @@ async function loadMessages() {
     state.messages = result.error ? [] : (Array.isArray(result.data) ? result.data : []);
   } catch {
     state.messages = [];
-  }
-}
-}
-async function loadPosts() {
-  if (!state.user) return;
-
-  try {
-    const following = Array.isArray(state.followingIds) ? state.followingIds : [];
-    const allowedUsers = [state.user.id, ...following];
-
-    const result = await supabase
-      .from("posts")
-      .select("*")
-      .in("user_id", allowedUsers)
-      .order("created_at", { ascending: false })
-      .limit(30);
-
-    state.posts = result.error
-      ? []
-      : (Array.isArray(result.data) ? result.data : []);
-
-  } catch (err) {
-    console.error("loadPosts error:", err);
-    state.posts = [];
   }
 }
 
@@ -1280,4 +1255,3 @@ async function toggleFollow(userId) {
   await loadCreators();
   render();
 }
-// fix deploy
