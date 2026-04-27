@@ -838,13 +838,13 @@ function renderSettings() {
       <div class="page-title">Settings</div>
 
       <div class="section-label">Theme</div>
-      <div class="card">
-        <div class="auth-actions">
-          ${themeBtn("dark", "Dark")}
-          ${themeBtn("light", "Light")}
-          ${themeBtn("pink", "Pink")}
-        </div>
-      </div>
+<div class="card">
+  <div class="auth-actions">
+    <button class="btn-secondary ${state.theme === "dark" ? "active" : ""}" data-theme="dark">Dark</button>
+    <button class="btn-secondary ${state.theme === "light" ? "active" : ""}" data-theme="light">Light</button>
+    <button class="btn-secondary ${state.theme === "pink" ? "active" : ""}" data-theme="pink">Pink</button>
+  </div>
+</div>
 
       <div class="section-label">Profile</div>
       <div class="card">
