@@ -253,7 +253,6 @@ async function loadCreators() {
     state.creators = [];
   }
 }
-
 async function loadPosts() {
   if (!state.user) return;
 
