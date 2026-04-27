@@ -622,12 +622,6 @@ function bindApp() {
       return;
     }
 
-    const followBtn = e.target.closest("[data-follow]");
-    if (followBtn) {
-      await toggleFollow(followBtn.dataset.follow);
-      return;
-    }
-
     if (e.target.closest("#themeCycleBtn")) {
       cycleTheme();
       return;
@@ -677,7 +671,6 @@ function bindApp() {
     };
   }
 }
-
 // ================================
 // VIEWS
 // ================================
