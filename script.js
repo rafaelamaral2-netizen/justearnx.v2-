@@ -254,14 +254,13 @@ async function loadCreators() {
   }
 }
 
-const following = state.followingIds || [];
-
-const result = await supabase
-  .from("posts")
-  .select("*")
-  .in("user_id", [...following, state.user.id])
-  .order("created_at", { ascending: false })
-  .limit(30);
+async function loadPosts() {
+  try {
+    const result = await supabase
+      .from("posts")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(30);
 
     state.posts = result.error ? [] : (Array.isArray(result.data) ? result.data : []);
   } catch {
@@ -606,71 +605,53 @@ function renderBottomNav() {
     </nav>
   `;
 }
+
 function bindApp() {
-  document.body.onclick = async function (e) {
-    const goBtn = e.target.closest("[data-go]");
-    if (goBtn) {
-      state.appView = goBtn.dataset.go;
+ document.querySelectorAll("[data-follow]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    toggleFollow(btn.dataset.follow);
+  });
+});
+  const themeBtn = document.getElementById("themeCycleBtn");
+  if (themeBtn) themeBtn.addEventListener("click", cycleTheme);
+
+  document.querySelectorAll("[data-theme]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      applyTheme(btn.dataset.theme);
       render();
-      return;
-    }
-
-    const themeBtn = e.target.closest("[data-theme]");
-    if (themeBtn) {
-      applyTheme(themeBtn.dataset.theme);
-      render();
-      return;
-    }
-
-    if (e.target.closest("#themeCycleBtn")) {
-      cycleTheme();
-      return;
-    }
-
-    if (e.target.closest("#saveProfileBtn")) {
-      await saveProfileSettings();
-      return;
-    }
-
-    if (e.target.closest("#logoutBtn")) {
-      await logout();
-      return;
-    }
-
-    if (e.target.closest("#resetPasswordBtn")) {
-      await resetPassword();
-      return;
-    }
-
-    if (e.target.closest("#publishPostBtn")) {
-      await publishPost();
-      return;
-    }
-
-    if (e.target.closest("#sendMessageBtn")) {
-      await sendMessage();
-      return;
-    }
-
-    if (e.target.closest("#depositBtn")) {
-      await recordWalletTransaction("deposit");
-      return;
-    }
-
-    if (e.target.closest("#withdrawBtn")) {
-      await recordWalletTransaction("withdrawal");
-      return;
-    }
-  };
+    });
+  });
 
   const search = document.getElementById("discoverSearch");
   if (search) {
-    search.oninput = e => {
+    search.addEventListener("input", e => {
       state.discoverQuery = e.target.value || "";
       render();
-    };
+    });
   }
+
+  const saveProfileBtn = document.getElementById("saveProfileBtn");
+  if (saveProfileBtn) saveProfileBtn.addEventListener("click", saveProfileSettings);
+
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) logoutBtn.addEventListener("click", logout);
+
+  const resetPasswordBtn = document.getElementById("resetPasswordBtn");
+  if (resetPasswordBtn) resetPasswordBtn.addEventListener("click", resetPassword);
+
+  const publishPostBtn = document.getElementById("publishPostBtn");
+  if (publishPostBtn) publishPostBtn.addEventListener("click", publishPost);
+
+  const sendMessageBtn = document.getElementById("sendMessageBtn");
+  if (sendMessageBtn) sendMessageBtn.addEventListener("click", sendMessage);
+
+  const depositBtn = document.getElementById("depositBtn");
+  if (depositBtn) depositBtn.addEventListener("click", () => recordWalletTransaction("deposit"));
+
+  const withdrawBtn = document.getElementById("withdrawBtn");
+  if (withdrawBtn) withdrawBtn.addEventListener("click", () => recordWalletTransaction("withdrawal"));
 }
+
 // ================================
 // VIEWS
 // ================================
@@ -838,13 +819,13 @@ function renderSettings() {
       <div class="page-title">Settings</div>
 
       <div class="section-label">Theme</div>
-<div class="card">
-  <div class="auth-actions">
-    <button class="btn-secondary ${state.theme === "dark" ? "active" : ""}" data-theme="dark">Dark</button>
-    <button class="btn-secondary ${state.theme === "light" ? "active" : ""}" data-theme="light">Light</button>
-    <button class="btn-secondary ${state.theme === "pink" ? "active" : ""}" data-theme="pink">Pink</button>
-  </div>
-</div>
+      <div class="card">
+        <div class="auth-actions">
+          ${themeBtn("dark", "Dark")}
+          ${themeBtn("light", "Light")}
+          ${themeBtn("pink", "Pink")}
+        </div>
+      </div>
 
       <div class="section-label">Profile</div>
       <div class="card">
