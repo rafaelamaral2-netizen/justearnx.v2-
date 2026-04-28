@@ -1209,7 +1209,50 @@ function renderFeedCard(post) {
     </div>
   `;
 }
+function renderStories() {
+  const creators = state.creators
+    .filter(c => c.id !== state.user?.id)
+    .slice(0, 10);
 
+  if (!creators.length) {
+    return `
+      <div class="stories-strip">
+        <div class="story-item">
+          <div class="story-ring seen">
+            <div class="story-avatar">X</div>
+          </div>
+          <span class="story-name">EarnX</span>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="stories-strip">
+      ${creators.map(c => {
+        const name = c.display_name || c.username || "Creator";
+        const initials = getInitials(name);
+
+        return `
+          <div class="story-item" data-go="discover">
+            <div class="story-ring ${state.followingIds.includes(c.id) ? "" : "seen"}">
+              <div class="story-avatar">
+                ${
+                  c.avatar_url
+                    ? `<img src="${escapeHtml(c.avatar_url)}" alt="${escapeHtml(name)}" />`
+                    : escapeHtml(initials)
+                }
+              </div>
+            </div>
+            <span class="story-name">
+              ${escapeHtml(c.username || name)}
+            </span>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
 function renderCreatorCard(c) {
   const initials = getInitials(c.display_name || c.username || "U");
   const m = creatorMetrics(c);
