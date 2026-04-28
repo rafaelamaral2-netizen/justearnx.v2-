@@ -1173,12 +1173,29 @@ function renderCreatorCard(c) {
   return `
     <div class="creator-card">
       <div class="creator-avatar-lg">${escapeHtml(initials)}</div>
-      <div class="creator-name">${escapeHtml(c.display_name || c.username || "Creator")}</div>
-      <div class="creator-handle">@${escapeHtml(c.username || "creator")}</div>
-      <div class="creator-bio">${escapeHtml(c.bio || "No bio yet.")}</div>
-      <div class="chip">Score ${m.score.toFixed(0)}</div>
 
-      <button class="btn-primary" data-follow="${c.id}" type="button">
+      <div class="creator-name">
+        ${escapeHtml(c.display_name || c.username || "Creator")}
+      </div>
+
+      <div class="creator-handle">
+        @${escapeHtml(c.username || "creator")}
+      </div>
+
+      <div class="creator-bio">
+        ${escapeHtml(c.bio || "No bio yet.")}
+      </div>
+
+      <div class="chip">
+        Score ${m.score.toFixed(0)}
+      </div>
+
+      <button 
+        class="${isFollowing ? "btn-secondary" : "btn-primary"}" 
+        data-follow="${c.id}" 
+        type="button"
+        style="margin-top:14px;width:100%;"
+      >
         ${isFollowing ? "Following" : "Follow"}
       </button>
     </div>
