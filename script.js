@@ -314,7 +314,9 @@ async function loadFollowing() {
     state.followingIds = result.error
       ? []
       : result.data.map(row => row.following_id);
-  } catch {
+
+  } catch (err) {
+    console.error("loadFollowing error:", err);
     state.followingIds = [];
   }
 }
