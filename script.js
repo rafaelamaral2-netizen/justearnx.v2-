@@ -257,15 +257,40 @@ async function loadCreators() {
 }
 
 async function loadPosts() {
+  if (!state.user) return;
+
   try {
+    const { data: followsData, error: followsError } = await supabase
+      .from("follows")
+      .select("following_id")
+      .eq("follower_id", state.user.id);
+
+    if (followsError) {
+      console.warn("follows load error:", followsError);
+    }
+
+    const followingIds = Array.isArray(followsData)
+      ? followsData.map(row => row.following_id)
+      : [];
+
+    const allowedUsers = [
+      state.user.id,
+      ...followingIds
+    ];
+
     const result = await supabase
       .from("posts")
       .select("*")
+      .in("user_id", allowedUsers)
       .order("created_at", { ascending: false })
       .limit(30);
 
-    state.posts = result.error ? [] : (Array.isArray(result.data) ? result.data : []);
-  } catch {
+    state.posts = result.error
+      ? []
+      : (Array.isArray(result.data) ? result.data : []);
+
+  } catch (err) {
+    console.error("loadPosts error:", err);
     state.posts = [];
   }
 }
