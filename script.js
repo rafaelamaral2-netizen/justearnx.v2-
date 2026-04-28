@@ -91,6 +91,7 @@ function resetState() {
 
 async function hydrateApp() {
   await ensureProfile(state.user);
+
   await Promise.all([
     loadProfile(),
     loadCreators(),
