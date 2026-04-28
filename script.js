@@ -95,11 +95,12 @@ async function hydrateApp() {
   await Promise.all([
     loadProfile(),
     loadCreators(),
-    loadPosts(),
     loadMessages(),
     loadWallet(),
     loadFollowing()
   ]);
+
+  await loadPosts();
 }
 
 // ================================
