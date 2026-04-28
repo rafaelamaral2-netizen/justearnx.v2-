@@ -1231,30 +1231,40 @@ function renderAvatarButton(profile) {
   const initials = getInitials(profile?.display_name || profile?.username || state.user?.email || "U");
   return `<button class="avatar-btn" data-go="profile" type="button">${escapeHtml(initials)}</button>`;
 }
-async function toggleFollow(userId) {
-  const me = state.user.id;
+async function toggleFollow(targetUserId) {
+  if (!state.user || !targetUserId || targetUserId === state.user.id) return;
 
-  const { data: existing } = await supabase
-    .from("follows")
-    .select("*")
-    .eq("follower_id", me)
-    .eq("following_id", userId)
-    .maybeSingle();
+  const isFollowing = state.followingIds.includes(targetUserId);
 
-  if (existing) {
-    await supabase
+  if (isFollowing) {
+    const result = await supabase
       .from("follows")
       .delete()
-      .eq("id", existing.id);
+      .eq("follower_id", state.user.id)
+      .eq("following_id", targetUserId);
+
+    if (result.error) {
+      alert(result.error.message);
+      return;
+    }
   } else {
-    await supabase
+    const result = await supabase
       .from("follows")
       .insert({
-        follower_id: me,
-        following_id: userId
+        follower_id: state.user.id,
+        following_id: targetUserId
       });
+
+    if (result.error) {
+      alert(result.error.message);
+      return;
+    }
   }
 
-  await loadCreators();
+  await Promise.all([
+    loadFollowing(),
+    loadCreators()
+  ]);
+
   render();
 }
