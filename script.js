@@ -716,35 +716,54 @@ function renderHome() {
 
   return `
     <main class="page">
-     <div class="home-top">
-  <div>
-    <div class="home-greeting">Good ${timeOfDay()}</div>
-    <div class="home-name">
-      ${escapeHtml(p.display_name || p.username || state.user.email)}
-    </div>
-  </div>
 
-  <button class="btn-secondary" data-go="discover" type="button">Explore</button>
-</div>
+      <div class="home-top">
+        <div>
+          <div class="home-greeting">Good ${timeOfDay()}</div>
+          <div class="home-name">
+            ${escapeHtml(p.display_name || p.username || state.user.email)}
+          </div>
+        </div>
 
+        <button class="avatar-btn" data-go="profile" type="button">
+          ${escapeHtml(getInitials(p.display_name || p.username || state.user.email))}
+        </button>
+      </div>
+
+      <div class="section-label">Stories</div>
+      ${renderStories()}
+
+      <div class="section-label">Create</div>
+      <div class="panel" style="padding:18px;margin-bottom:18px;">
+        <div class="field">
+          <label>Share something</label>
+          <textarea id="postBody" placeholder="Post an update, idea, win, content drop or creator note..."></textarea>
+        </div>
+
+        <button class="btn-primary" id="publishPostBtn" type="button">
+          Publish post
+        </button>
+      </div>
+
+      <div class="section-label">Your momentum</div>
       <div class="stats-row">
-        ${statCard("$" + safeNum(p.earnings_total).toFixed(0), "Earnings")}
         ${statCard(String(safeNum(p.followers_count)), "Followers")}
         ${statCard(String(safeNum(p.posts_count)), "Posts")}
         ${statCard(String(safeNum(p.engagement_score)), "Engagement")}
       </div>
 
-      <div class="section-label">Create</div>
-      <div class="card">
-        <div class="field">
-          <label>Post</label>
-          <textarea id="postBody" placeholder="Share an update with your audience"></textarea>
-        </div>
-        <button class="btn-primary" id="publishPostBtn" type="button">Publish post</button>
+      <div class="section-label">Following feed</div>
+      <div class="feed">
+        ${
+          posts.length
+            ? posts.map(renderFeedCard).join("")
+            : emptyState(
+                "No posts yet",
+                "Follow creators in Discover or publish your first post to start building your feed."
+              )
+        }
       </div>
 
-      <div class="section-label">Feed</div>
-      ${posts.length ? posts.map(renderFeedCard).join("") : emptyState("No posts yet", "Create the first post or connect your posts table.")}
     </main>
   `;
 }
