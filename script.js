@@ -745,12 +745,6 @@ function renderHome() {
         </button>
       </div>
 
-      <div class="section-label">Your momentum</div>
-      <div class="stats-row">
-        ${statCard(String(safeNum(p.followers_count)), "Followers")}
-        ${statCard(String(safeNum(p.posts_count)), "Posts")}
-        ${statCard(String(safeNum(p.engagement_score)), "Engagement")}
-      </div>
 
       <div class="section-label">Following feed</div>
       <div class="feed">
