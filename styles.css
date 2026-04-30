@@ -925,3 +925,59 @@ body.light-theme .panel {
   box-shadow: 0 0 10px rgba(0,255,136,0.4);
   color: #00ff88;
 }
+.trend-strip {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 4px 0 18px;
+  scrollbar-width: none;
+}
+
+.trend-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.trend-mini-card {
+  min-width: 220px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.035);
+  border: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 1fr 86px auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.trend-mini-name {
+  font-weight: 900;
+  font-size: .9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trend-mini-symbol {
+  color: var(--muted);
+  font-size: .74rem;
+  margin-top: 3px;
+}
+
+.trend-sparkline {
+  width: 86px;
+  height: 36px;
+}
+
+.trend-sparkline polyline {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.trend-mini-score {
+  font-weight: 900;
+  font-size: .85rem;
+  color: var(--muted);
+}
