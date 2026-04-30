@@ -902,25 +902,98 @@ function renderWallet() {
 
 function renderProfile() {
   const p = state.profile || {};
+  const myPosts = state.posts.filter(post => post.user_id === state.user?.id);
+  const earnings = safeNum(p.earnings_total);
 
   return `
     <main class="page">
-      <div class="profile-shell">
-        <div class="profile-avatar">${escapeHtml(getInitials(p.display_name || p.username || state.user.email))}</div>
-        <div class="profile-name">${escapeHtml(p.display_name || p.username || state.user.email)}</div>
-        <div class="profile-handle">@${escapeHtml(p.username || "creator")}</div>
-        <p class="profile-bio">${escapeHtml(p.bio || "No bio yet.")}</p>
 
-        <div class="profile-stats">
-          ${profileStat(safeNum(p.followers_count), "Followers")}
-          ${profileStat(safeNum(p.posts_count), "Posts")}
-          ${profileStat("$" + safeNum(p.earnings_total).toFixed(0), "Earned")}
-          ${profileStat(safeNum(p.engagement_score), "Engagement")}
+      <div class="profile-cover">
+        ${
+          p.cover_url
+            ? `<img src="${escapeHtml(p.cover_url)}" alt="Cover" />`
+            : `<div class="profile-cover-glow"></div>`
+        }
+      </div>
+
+      <div class="profile-info">
+        <div class="profile-avatar-row">
+          <div class="profile-avatar">
+            ${
+              p.avatar_url
+                ? `<img src="${escapeHtml(p.avatar_url)}" alt="Avatar" />`
+                : escapeHtml(getInitials(p.display_name || p.username || state.user.email))
+            }
+          </div>
+
+          <button class="btn-secondary" data-go="settings" type="button">
+            Edit profile
+          </button>
         </div>
 
-        <br>
-        <button class="btn-secondary" data-go="settings" type="button">Edit profile</button>
+        <div class="profile-name">
+          ${escapeHtml(p.display_name || p.username || state.user.email)}
+        </div>
+
+        <div class="profile-handle">
+          @${escapeHtml(p.username || "creator")}
+        </div>
+
+        <div class="profile-meta">
+          <span class="profile-meta-item">${escapeHtml(p.category || "creator")}</span>
+          <span class="profile-meta-item">${escapeHtml(p.country || "Global")}</span>
+          ${p.verified ? `<span class="verified-badge">Verified</span>` : ""}
+        </div>
+
+        <p class="profile-bio">
+          ${escapeHtml(p.bio || "No bio yet.")}
+        </p>
+
+        <div class="profile-divider"></div>
+
+        <div class="section-label">Creator momentum</div>
+
+        <div class="profile-stats">
+          ${profileStat(String(safeNum(p.followers_count)), "Followers")}
+          ${profileStat(String(safeNum(p.posts_count)), "Posts")}
+          ${profileStat(String(safeNum(p.engagement_score)), "Engagement")}
+        </div>
+
+        <div class="section-label">Wallet summary</div>
+
+        <div class="wallet-card">
+          <div class="wallet-label">Available earnings</div>
+          <div class="wallet-amount">
+            $${earnings.toFixed(2)} <span>USD</span>
+          </div>
+          <div class="wallet-sub">
+            Wallet history is available in the Wallet tab.
+          </div>
+
+          <div class="wallet-actions" style="margin-top:14px;">
+            <button class="btn-wallet" data-go="wallet" type="button">
+              View wallet
+            </button>
+            <button class="btn-wallet" data-go="settings" type="button">
+              Edit profile
+            </button>
+          </div>
+        </div>
+
+        <div class="section-label">Your posts</div>
+
+        <div class="feed">
+          ${
+            myPosts.length
+              ? myPosts.map(renderFeedCard).join("")
+              : emptyState(
+                  "No posts yet",
+                  "Your published posts will appear here."
+                )
+          }
+        </div>
       </div>
+
     </main>
   `;
 }
