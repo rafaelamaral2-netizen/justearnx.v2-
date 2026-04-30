@@ -784,7 +784,14 @@ function renderDiscover() {
       <div class="card">
         ${creators.length ? creators.map(renderMarketRow).join("") : emptyState("No creators yet", "Profiles table is connected, but no creator records are available.")}
       </div>
-
+<div class="section-label">Market trends</div>
+<div class="trend-strip">
+  ${
+    creators.length
+      ? creators.slice(0, 6).map(renderMiniTrend).join("")
+      : emptyState("No trends yet", "Follow and creator activity will power this trend board.")
+  }
+</div>
       <div class="section-label">Creators</div>
       <div class="creator-grid">
         ${creators.map(renderCreatorCard).join("")}
