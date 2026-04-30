@@ -792,7 +792,46 @@ function renderDiscover() {
     </main>
   `;
 }
+function renderMiniTrend(c) {
+  const m = creatorMetrics(c);
 
+  const base = Math.max(8, Math.min(92, m.score / 10));
+  const points = [
+    8,
+    100 - Math.max(12, base + 18),
+    34,
+    100 - Math.max(14, base + 6),
+    58,
+    100 - Math.max(10, base + 20),
+    84,
+    100 - Math.max(8, base + 10),
+    108,
+    100 - Math.max(6, base + 26)
+  ].join(" ");
+
+  const isUp = m.score >= 100;
+
+  return `
+    <div class="trend-mini-card">
+      <div class="trend-mini-info">
+        <div class="trend-mini-name">
+          ${escapeHtml(c.display_name || c.username || "Creator")}
+        </div>
+        <div class="trend-mini-symbol">
+          @${escapeHtml(c.username || "creator")}
+        </div>
+      </div>
+
+      <svg class="trend-sparkline" viewBox="0 0 116 100" preserveAspectRatio="none">
+        <polyline points="${points}" />
+      </svg>
+
+      <div class="trend-mini-score ${isUp ? "market-up" : ""}">
+        ${isUp ? "▲" : "•"} ${m.score.toFixed(0)}
+      </div>
+    </div>
+  `;
+}
 function renderMessages() {
   const rows = enrichMessages();
 
