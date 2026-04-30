@@ -981,3 +981,46 @@ body.light-theme .panel {
   font-size: .85rem;
   color: var(--muted);
 }
+/* =========================
+   PROFILE THEME FIX
+========================= */
+
+.profile-cover {
+  background:
+    radial-gradient(circle at top left, var(--accent-soft), transparent 32%),
+    linear-gradient(180deg, var(--bg-3), var(--bg-2));
+}
+
+.profile-cover-glow {
+  background:
+    radial-gradient(circle at 20% 0%, var(--accent-soft), transparent 30%),
+    radial-gradient(circle at 100% 0%, rgba(255,255,255,0.06), transparent 26%);
+}
+
+.profile-info {
+  background: linear-gradient(180deg, var(--bg-2), var(--bg));
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.profile-stat {
+  background: rgba(255,255,255,0.035);
+  border: 1px solid var(--line);
+}
+
+.wallet-card {
+  background: linear-gradient(180deg, var(--bg-2), var(--bg-3));
+  border: 1px solid var(--line);
+}
+
+body.pink-theme .profile-info,
+body.pink-theme .wallet-card,
+body.pink-theme .profile-stat {
+  background: linear-gradient(180deg, rgba(34,17,28,0.96), rgba(23,12,19,0.96));
+}
+
+body.light-theme .profile-info,
+body.light-theme .wallet-card,
+body.light-theme .profile-stat {
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,250,254,0.96));
+}
