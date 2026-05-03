@@ -610,6 +610,7 @@ function renderTopbar() {
 
 function renderCurrentView() {
   if (state.appView === "discover") return renderDiscover();
+  if (state.appView === "creator") return renderCreatorProfile();
   if (state.appView === "messages") return renderMessages();
   if (state.appView === "wallet") return renderWallet();
   if (state.appView === "profile") return renderProfile();
