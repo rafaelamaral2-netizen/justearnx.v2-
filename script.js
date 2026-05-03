@@ -21,7 +21,8 @@ const state = {
   authView: "login",
   appView: "home",
   theme: localStorage.getItem("earnx-theme") || "dark",
-  discoverQuery: ""
+  discoverQuery: "",
+selectedCreatorId: null
 };
 
 document.addEventListener("DOMContentLoaded", boot);
