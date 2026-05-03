@@ -1347,7 +1347,7 @@ function renderStories() {
         const initials = getInitials(name);
 
         return `
-          <div class="story-item" data-go="discover">
+          <div class="story-item">
             <div class="story-ring ${state.followingIds.includes(c.id) ? "" : "seen"}">
               <div class="story-avatar">
                 ${
