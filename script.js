@@ -645,7 +645,11 @@ function bindApp() {
       render();
       return;
     }
-
+    const creatorBtn = e.target.closest("[data-creator]");
+if (creatorBtn) {
+  openCreatorProfile(creatorBtn.dataset.creator);
+  return;
+}
     const themeBtn = e.target.closest("[data-theme]");
     if (themeBtn) {
       applyTheme(themeBtn.dataset.theme);
