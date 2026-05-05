@@ -1371,30 +1371,37 @@ function renderStories() {
       }).join("")}
     </div>
   `;
-}
-function renderCreatorCard(c) {
+}function renderCreatorCard(c) {
   const initials = getInitials(c.display_name || c.username || "U");
   const m = creatorMetrics(c);
   const isFollowing = state.followingIds.includes(c.id);
 
   return `
     <div class="creator-card">
-      <div class="creator-avatar-lg">${escapeHtml(initials)}</div>
+      <div data-creator="${c.id}" style="cursor:pointer;">
+        <div class="creator-avatar-lg">
+          ${
+            c.avatar_url
+              ? `<img src="${escapeHtml(c.avatar_url)}" alt="${escapeHtml(c.display_name || c.username || "Creator")}" />`
+              : escapeHtml(initials)
+          }
+        </div>
 
-      <div class="creator-name">
-        ${escapeHtml(c.display_name || c.username || "Creator")}
-      </div>
+        <div class="creator-name">
+          ${escapeHtml(c.display_name || c.username || "Creator")}
+        </div>
 
-      <div class="creator-handle">
-        @${escapeHtml(c.username || "creator")}
-      </div>
+        <div class="creator-handle">
+          @${escapeHtml(c.username || "creator")}
+        </div>
 
-      <div class="creator-bio">
-        ${escapeHtml(c.bio || "No bio yet.")}
-      </div>
+        <div class="creator-bio">
+          ${escapeHtml(c.bio || "No bio yet.")}
+        </div>
 
-      <div class="chip">
-        Score ${m.score.toFixed(0)}
+        <div class="chip">
+          Score ${m.score.toFixed(0)}
+        </div>
       </div>
 
       <button 
