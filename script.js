@@ -1003,7 +1003,110 @@ function renderProfile() {
     </main>
   `;
 }
+function renderCreatorProfile() {
+  const creator = state.creators.find(c => c.id === state.selectedCreatorId);
 
+  if (!creator) {
+    return `
+      <main class="page">
+        <div class="empty-state">
+          <div class="empty-title">Creator not found</div>
+          <div class="empty-desc">Go back to Discover and select another creator.</div>
+          <br>
+          <button class="btn-secondary" data-go="discover" type="button">
+            Back to Discover
+          </button>
+        </div>
+      </main>
+    `;
+  }
+
+  const initials = getInitials(creator.display_name || creator.username || "U");
+  const isFollowing = state.followingIds.includes(creator.id);
+  const m = creatorMetrics(creator);
+
+  const creatorPosts = state.posts.filter(post => post.user_id === creator.id);
+
+  return `
+    <main class="page">
+
+      <button class="btn-secondary" data-go="discover" type="button" style="margin-bottom:16px;">
+        ← Back to Discover
+      </button>
+
+      <div class="profile-cover">
+        ${
+          creator.cover_url
+            ? `<img src="${escapeHtml(creator.cover_url)}" alt="Cover" />`
+            : `<div class="profile-cover-glow"></div>`
+        }
+      </div>
+
+      <div class="profile-info">
+        <div class="profile-avatar-row">
+          <div class="profile-avatar">
+            ${
+              creator.avatar_url
+                ? `<img src="${escapeHtml(creator.avatar_url)}" alt="Avatar" />`
+                : escapeHtml(initials)
+            }
+          </div>
+
+          <button 
+            class="${isFollowing ? "btn-secondary" : "btn-primary"}" 
+            data-follow="${creator.id}" 
+            type="button"
+            style="width:auto;padding:0 22px;"
+          >
+            ${isFollowing ? "Following" : "Follow"}
+          </button>
+        </div>
+
+        <div class="profile-name">
+          ${escapeHtml(creator.display_name || creator.username || "Creator")}
+        </div>
+
+        <div class="profile-handle">
+          @${escapeHtml(creator.username || "creator")}
+        </div>
+
+        <div class="profile-meta">
+          <span class="profile-meta-item">${escapeHtml(creator.category || "creator")}</span>
+          <span class="profile-meta-item">${escapeHtml(creator.country || "Global")}</span>
+          ${creator.verified ? `<span class="verified-badge">Verified</span>` : ""}
+        </div>
+
+        <p class="profile-bio">
+          ${escapeHtml(creator.bio || "No bio yet.")}
+        </p>
+
+        <div class="profile-divider"></div>
+
+        <div class="section-label">Creator momentum</div>
+
+        <div class="profile-stats">
+          ${profileStat(String(safeNum(creator.followers_count)), "Followers")}
+          ${profileStat(String(safeNum(creator.posts_count)), "Posts")}
+          ${profileStat(String(m.score.toFixed(0)), "Score")}
+        </div>
+
+        <div class="section-label">Creator posts</div>
+
+        <div class="feed">
+          ${
+            creatorPosts.length
+              ? creatorPosts.map(renderFeedCard).join("")
+              : emptyState(
+                  "No posts yet",
+                  "This creator has not published posts yet."
+                )
+          }
+        </div>
+      </div>
+
+    </main>
+  `;
+}
 function renderSettings() {
   const p = state.profile || {};
 
