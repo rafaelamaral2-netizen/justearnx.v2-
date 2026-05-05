@@ -1488,3 +1488,17 @@ async function toggleFollow(targetUserId) {
 
   render();
 }
+
+
+// ================================
+
+// COMPONENTS
+
+// ================================
+function openCreatorProfile(creatorId) {
+  if (!creatorId) return;
+
+  state.selectedCreatorId = creatorId;
+  state.appView = "creator";
+  render();
+}
