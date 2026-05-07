@@ -218,15 +218,16 @@ function renderTrendCard(c) {
 }
 
 function renderStories() {
+  const tags = ["RISING", "DROP", "HOT", "LIVE"];
+
   return `
-    <div class="stories">
-      ${creators.map(c => `
-        <div class="story-card" onclick="openCreator('${c.id}')">
-          <div class="story-inner">
-            <div class="story-avatar">${c.initials}</div>
-            <div class="story-name">${c.name}</div>
-            <div class="story-meta">@${c.username}</div>
-          </div>
+    <div class="signal-strip">
+      ${creators.map((c, index) => `
+        <div class="signal-card" onclick="openCreator('${c.id}')">
+          <div class="signal-avatar">${c.initials}</div>
+          <div class="signal-tag">${tags[index % tags.length]}</div>
+          <div class="signal-name">${c.name}</div>
+          <div class="signal-meta">▲ ${c.score} · @${c.username}</div>
         </div>
       `).join("")}
     </div>
