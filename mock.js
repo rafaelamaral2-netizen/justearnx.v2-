@@ -234,26 +234,20 @@ function renderStories() {
   `;
 }
 
-function renderFeedCard(p) {
+function renderStories() {
+  const tags = ["RISING", "DROP", "HOT", "LIVE"];
+
   return `
-    <article class="feed-card">
-      <div class="feed-head">
-        <div class="avatar">${p.initials}</div>
-        <div>
-          <div class="feed-name">${p.author}</div>
-          <div class="feed-meta">@${p.username} · ${p.time}</div>
+    <div class="signal-strip">
+      ${creators.map((c, index) => `
+        <div class="signal-card" onclick="openCreator('${c.id}')">
+          <div class="signal-avatar">${c.initials}</div>
+          <div class="signal-tag">${tags[index % tags.length]}</div>
+          <div class="signal-name">${c.name}</div>
+          <div class="signal-meta">▲ ${c.score} · @${c.username}</div>
         </div>
-      </div>
-
-      <div class="feed-body">${p.body}</div>
-      <div class="feed-art"></div>
-
-      <div class="feed-actions">
-        <button>Like</button>
-        <button>Comment</button>
-        <button>Share</button>
-      </div>
-    </article>
+      `).join("")}
+    </div>
   `;
 }
 
