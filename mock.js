@@ -1,3 +1,11 @@
+window.onerror = function (msg, url, line, col, error) {
+  document.body.innerHTML = `
+    <div style="padding:40px;font-family:monospace;color:white;background:black;">
+      <h2>Mock JS Error</h2>
+      <pre>${msg}\nLine: ${line}</pre>
+    </div>
+  `;
+};
 const state = {
   view: "home",
   selectedCreator: "luna"
