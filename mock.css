@@ -1,47 +1,79 @@
-:root {
-  --bg: #0b0c10;
-  --card: #111319;
-  --line: rgba(255,255,255,.08);
-  --text: #ffffff;
-  --muted: #9aa4b2;
-  --green: #72f58a;
-  --shadow: 0 10px 30px rgba(0,0,0,.35);
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
 body {
-  background: var(--bg);
-  color: var(--text);
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #0c0f14;
+  color: white;
 }
 
-.main {
-  max-width: 680px;
-  margin: 0 auto;
+.topbar {
   padding: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  border-bottom: 1px solid #1a1f2b;
+}
+
+.logo {
+  letter-spacing: 1px;
+}
+
+.stories {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.story {
+  min-width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #00ffc3, #0077ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.feed {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  padding: 18px;
-  margin-bottom: 16px;
-  box-shadow: var(--shadow);
+  background: #131722;
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid #1d2330;
 }
 
-.title {
-  font-size: 1.4rem;
-  font-weight: 800;
-  margin-bottom: 8px;
+.card-header {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
-.muted {
-  color: var(--muted);
-  font-size: .9rem;
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #1f2633;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.name {
+  font-weight: bold;
+}
+
+.time {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.card-body {
+  line-height: 1.5;
 }
