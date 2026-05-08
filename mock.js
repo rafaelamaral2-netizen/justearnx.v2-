@@ -256,42 +256,59 @@ function renderHome() {
     <main class="main">
       ${renderTopbar()}
 
-      <section class="hero">
+      <section class="hero v3">
         <div class="hero-content">
           <div class="kicker">EarnX Social Market</div>
-          <div class="hero-title">Move with momentum.</div>
+          <div class="hero-title">Creator momentum, made visible.</div>
           <div class="hero-copy">
-            A premium creator platform where public ranking, audience growth and content momentum move together.
+            A social market for creators where content, ranking, audience growth and monetization move together.
           </div>
 
           <div class="hero-actions">
-            <button class="btn-primary" onclick="setView('discover')">Explore creators</button>
-            <button class="btn-secondary">Publish drop</button>
+            <button class="btn-primary" onclick="setView('discover')">Explore market</button>
+            <button class="btn-secondary">Create drop</button>
           </div>
+        </div>
+
+        <div class="hero-market-card">
+          <div class="hero-market-label">Market Pulse</div>
+          <div class="hero-market-value">+24%</div>
+          <div class="hero-market-up">Creator activity this week</div>
         </div>
       </section>
 
       <div class="section-head">
         <div>
-          <div class="section-title">Stories</div>
-          <div class="section-sub">Creators gaining attention now</div>
+          <div class="section-title">Creator Signals</div>
+          <div class="section-sub">Drops, rising creators and public momentum</div>
         </div>
       </div>
 
       ${renderStories()}
 
-      <section class="composer">
-        <textarea placeholder="Share a drop, idea, win or creator update..."></textarea>
-        <div class="composer-row">
-          <div class="muted">Audience momentum starts with consistency.</div>
-          <button class="btn-primary">Publish post</button>
+      <section class="composer v3">
+        <div class="avatar">RA</div>
+        <div>
+          <textarea placeholder="Share a drop, idea, win or creator update..."></textarea>
+
+          <div class="composer-tools">
+            <button class="tool-pill">Drop</button>
+            <button class="tool-pill">Milestone</button>
+            <button class="tool-pill">Behind the scenes</button>
+            <button class="tool-pill">Creator note</button>
+          </div>
+
+          <div class="composer-row">
+            <div class="muted">Build momentum through consistent public updates.</div>
+            <button class="btn-primary">Publish post</button>
+          </div>
         </div>
       </section>
 
       <div class="section-head">
         <div>
           <div class="section-title">Following Feed</div>
-          <div class="section-sub">Posts from creators you follow</div>
+          <div class="section-sub">A premium feed shaped by creators you follow</div>
         </div>
       </div>
 
@@ -301,7 +318,6 @@ function renderHome() {
     </main>
   `;
 }
-
 function renderDiscover() {
   const sorted = [...creators].sort((a, b) => b.score - a.score);
 
