@@ -2,56 +2,88 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EarnX Home</title>
-  <link rel="stylesheet" href="mock.css" />
-<link rel="stylesheet" href="styles.css" />
-  <script src="mock.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EarnX Mock 2.0</title>
+
+  <link rel="stylesheet" href="./styles.css">
+</head>
 <body>
 
-  <header class="topbar">
-    <div class="logo">EarnX</div>
-  </header>
+  <div class="app-layout">
 
-  <!-- STORIES -->
- <section class="stories">
-  <div class="story" data-initial="RA"></div>
-  <div class="story" data-initial="MK"></div>
-  <div class="story" data-initial="JL"></div>
-  <div class="story" data-initial="AN"></div>
-  <div class="story" data-initial="PX"></div>
-</section>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="logo">EarnX</div>
 
-  <!-- FEED -->
-  <main class="feed">
+      <nav class="nav">
+        <div class="nav-item active">Home</div>
+        <div class="nav-item">Discover</div>
+        <div class="nav-item">Profile</div>
+        <div class="nav-item">Wallet</div>
+      </nav>
+    </aside>
 
-    <div class="card">
-      <div class="card-header">
-        <div class="avatar">RA</div>
-        <div>
-          <div class="name">Rafael Amaral</div>
-          <div class="time">2h ago</div>
-        </div>
+    <!-- MAIN -->
+    <main class="main-feed">
+
+      <!-- STORIES -->
+      <section class="stories">
+        <div class="story" data-name="RA"></div>
+        <div class="story" data-name="MK"></div>
+        <div class="story" data-name="AN"></div>
+        <div class="story" data-name="PX"></div>
+        <div class="story" data-name="JL"></div>
+      </section>
+
+      <!-- POST -->
+      <section class="feed">
+
+        <article class="post-card">
+
+          <div class="post-header">
+            <div class="avatar">RA</div>
+
+            <div>
+              <div class="username">Rafael Amaral</div>
+              <div class="post-time">2h ago</div>
+            </div>
+
+          </div>
+
+          <div class="post-content">
+            Building the future of creator monetization on EarnX 🚀
+          </div>
+
+          <div class="post-image"></div>
+
+          <div class="post-actions">
+            <span>❤️ 1.2K</span>
+            <span>💬 86</span>
+            <span>↗ Share</span>
+          </div>
+
+        </article>
+
+      </section>
+
+    </main>
+
+    <!-- RIGHT PANEL -->
+    <aside class="right-panel">
+
+      <div class="panel-card">
+        <div class="panel-title">Trending Creators</div>
+
+        <div class="trend-user">Ariana ▲ 12%</div>
+        <div class="trend-user">Luna ▲ 8%</div>
+        <div class="trend-user">Jonas ▲ 21%</div>
       </div>
-      <div class="card-body">
-        Building the future of creator monetization on EarnX 🚀
-      </div>
-    </div>
 
-    <div class="card">
-      <div class="card-header">
-        <div class="avatar">MK</div>
-        <div>
-          <div class="name">Mika</div>
-          <div class="time">5h ago</div>
-        </div>
-      </div>
-      <div class="card-body">
-        Just hit 12k interactions this week. Momentum is real.
-      </div>
-    </div>
+    </aside>
 
-  </main>
+  </div>
+
+  <script src="./mock.js"></script>
 
 </body>
 </html>
