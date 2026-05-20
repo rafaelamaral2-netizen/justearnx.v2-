@@ -1,5 +1,7 @@
 const app = document.getElementById("app");
 
+console.log("EarnX Mock 2.0 Loaded");
+
 const posts = [
   {
     author: "Rafael",
